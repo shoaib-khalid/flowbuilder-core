@@ -66,20 +66,20 @@ public class FlowsController {
     @RequestMapping(method= RequestMethod.POST, value="/")
 	public ResponseEntity<ProcessResult> createFlow(
                 @RequestHeader("Authorization") String auth,
-                @RequestBody(required = true) FlowPayload jsonRequest
+                @RequestBody(required = true) FlowPayload flowPayLoad
                 ) {
 		
                 ProcessResult response = new ProcessResult();
            
                 try {
                     // This returns a JSON or XML with the users
-                    LOG.info("createFlow. Check token validity:"+auth); 
+                    LOG.info("["+auth+"] createFlow. Check token validity:"+auth);
                     
-                    JSONObject jsonObj = new JSONObject(jsonRequest);
-                    String title = jsonObj.getString("title");
-                    String description = jsonObj.getString("description");
-                    String botId = jsonObj.getString("botId");
-                    String topVertexId = jsonObj.getString("topVertexId");
+                    LOG.info("["+auth+"] createFlow. FlowPayload :"+flowPayLoad.toString());                    
+                    String title = flowPayLoad.getTitle();
+                    String description = flowPayLoad.getDescription();
+                    String botId = flowPayLoad.getBotId();
+                    String topVertexId = flowPayLoad.getTopVertexId();
                     Flow chatFlow = new Flow();
                     chatFlow.title=title;
                     chatFlow.description=description;
@@ -123,18 +123,18 @@ public class FlowsController {
 	public ResponseEntity<ProcessResult> updateFlow(
                 @RequestHeader("Authorization") String auth,
                 @PathVariable("id") String id,
-                @RequestBody(required = true) FlowPayload jsonRequest
+                @RequestBody(required = true) FlowPayload flowPayLoad
                 ) {
 		
                 ProcessResult response = new ProcessResult();
                 try {
                     // This returns a JSON or XML with the users
-                    LOG.info("updateFlow. Check token validity:"+auth);                     
-                    JSONObject jsonObj = new JSONObject(jsonRequest);
-                    String title = jsonObj.getString("title");
-                    String description = jsonObj.getString("description");
-                    String botId = jsonObj.getString("botId");
-                    String topVertexId = jsonObj.getString("topVertexId");
+                    LOG.info("["+auth+"] updateFlow. Check token validity:"+auth);                     
+                    LOG.info("["+auth+"] updateFlow. FlowPayload :"+flowPayLoad.toString());                    
+                    String title = flowPayLoad.getTitle();
+                    String description = flowPayLoad.getDescription();
+                    String botId = flowPayLoad.getBotId();
+                    String topVertexId = flowPayLoad.getTopVertexId();
                     Flow chatFlow = new Flow();
                     chatFlow.id = id;
                     chatFlow.title=title;
@@ -142,6 +142,7 @@ public class FlowsController {
                     chatFlow.botId=botId;
                     chatFlow.topVertexId=topVertexId;
                     chatflowsRepositories.save(chatFlow);
+                    
                     LOG.info("["+auth+"] updateFlow Finish");
                     return new ResponseEntity<>(response, HttpStatus.OK);
                 } catch (Exception exp) {

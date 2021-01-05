@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kalsym.chatbot.flowbuilder.ProcessResult;
+import com.kalsym.chatbot.flowbuilder.models.ConversationPayload;
 import com.kalsym.chatbot.flowbuilder.models.daos.Conversation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,7 +67,7 @@ public class ConversationsController {
     @RequestMapping(method= RequestMethod.POST, value="/")
 	public ResponseEntity<ProcessResult> createConversation(
                 @RequestHeader("Authorization") String auth,
-                @RequestBody(required = true) String jsonRequest
+                @RequestBody(required = true) ConversationPayload conversationPayload
                 ) {
 		
                 ProcessResult response = new ProcessResult();
@@ -75,7 +76,7 @@ public class ConversationsController {
                     // This returns a JSON or XML with the users
                     LOG.info("createConversation. Check token validity:"+auth); 
                     
-                    JSONObject jsonObj = new JSONObject(jsonRequest);
+                    /*JSONObject jsonObj = new JSONObject(jsonRequest);
                     JSONObject data = jsonObj.getJSONObject("data");
                     String senderId = jsonObj.getString("senderId");
                     String referenceId = jsonObj.getString("referenceId");
@@ -90,6 +91,16 @@ public class ConversationsController {
                     conversation.senderId = senderId;
                     conversation.referenceId = referenceId;
                     conversation.flowId = flowId;
+                    */
+                    
+                    Conversation conversation = new Conversation();
+                    
+                    conversation.data = conversationPayload.getData();
+                    conversation.createdDate = DateTimeUtil.currentTimestamp();
+                    conversation.lastModifiedDate = DateTimeUtil.currentTimestamp(); 
+                    conversation.senderId = conversationPayload.getSenderId();
+                    conversation.referenceId = conversationPayload.getReferenceId();
+                    conversation.flowId = conversationPayload.getFlowId();
                     
                     conversationsRepositories.save(conversation);
                     
@@ -129,7 +140,7 @@ public class ConversationsController {
 	public ResponseEntity<ProcessResult> updateConversation(
                 @RequestHeader("Authorization") String auth,
                 @PathVariable("id") String id,
-                @RequestBody(required = true) String jsonRequest
+                @RequestBody(required = true) ConversationPayload conversationPayload
                 ) {
 		
                 ProcessResult response = new ProcessResult();
@@ -137,21 +148,15 @@ public class ConversationsController {
                     // This returns a JSON or XML with the users
                     LOG.info("updateConversation. Check token validity:"+auth);                     
                     
-                    JSONObject jsonObj = new JSONObject(jsonRequest);
-                    JSONObject data = jsonObj.getJSONObject("data");
-                    String senderId = jsonObj.getString("senderId");
-                    String referenceId = jsonObj.getString("referenceId");
-                    String flowId = jsonObj.getString("flowId");
-                    
-                    Object dataObject = BasicDBObject.parse(data.toString());
                     Conversation conversation = new Conversation();
+                    
                     conversation.id = id;
-                    conversation.data = (DBObject)dataObject;
+                    conversation.data = conversationPayload.getData();
                     conversation.createdDate = DateTimeUtil.currentTimestamp();
                     conversation.lastModifiedDate = DateTimeUtil.currentTimestamp(); 
-                    conversation.senderId = senderId;
-                    conversation.referenceId = referenceId;
-                    conversation.flowId = flowId;
+                    conversation.senderId = conversationPayload.getSenderId();
+                    conversation.referenceId = conversationPayload.getReferenceId();
+                    conversation.flowId = conversationPayload.getFlowId();
                     
                     conversationsRepositories.save(conversation);
                     

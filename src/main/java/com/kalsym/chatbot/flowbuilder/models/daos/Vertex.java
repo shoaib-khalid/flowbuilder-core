@@ -18,31 +18,37 @@ import org.bson.types.ObjectId;
 import org.json.JSONObject;
 import org.json.JSONArray;
 
+import com.kalsym.chatbot.flowbuilder.submodels.Option;
+import com.kalsym.chatbot.flowbuilder.submodels.Info;
+import com.kalsym.chatbot.flowbuilder.submodels.Step;
+import com.kalsym.chatbot.flowbuilder.submodels.Action;
+
+import java.util.List;
+
+
 public class Vertex {
 
   @Id
   public String id;
 
-  public DBObject info;
-  public DBObject[] options;
-  public DBObject step;
-  public ObjectId flowId;
+  public Info info;
+  public List<Option> options;
+  public Step step;
+  public String flowId;
   public String customVariableName;
-  public DBObject[] actions;
+  public String dataVariable;
+  public List<Action> actions;
   public DBObject validation;
+  public String mxId;
+  public int isTopVertex=0;
+  
+  public Vertex() {
+  }
 
-  public Vertex() {}
-
-  public Vertex(ObjectId flowId, String customVariableName) {
+  public Vertex(String flowId, String customVariableName) {
     this.flowId = flowId;
     this.customVariableName = customVariableName;
   }
 
-  @Override
-  public String toString() {
-    return String.format(
-        "Flow[id=%s, title='%s', description='%s']",
-        id, customVariableName, customVariableName);
-  }
   
 }

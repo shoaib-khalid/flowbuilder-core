@@ -42,7 +42,7 @@ public class FlowBuilderCoreApplication extends WebSecurityConfigurerAdapter {
     @Override
     public void configure(WebSecurity web) throws Exception {
         //don't check security for login
-        web.ignoring().antMatchers("/flow/**","/vertex/**","/conversation/**");
+        web.ignoring().antMatchers("/flow/**","/vertex/**","/conversation/**","/mxgraph/**");
     }
     
     @Bean

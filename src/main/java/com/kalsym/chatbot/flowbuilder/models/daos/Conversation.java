@@ -10,19 +10,14 @@ package com.kalsym.chatbot.flowbuilder.models.daos;
  */
 import org.springframework.data.annotation.Id;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
-import com.mongodb.BasicDBList;
-
-import org.json.JSONObject;
-import org.json.JSONArray;
+import com.kalsym.chatbot.flowbuilder.submodels.Data;
 
 public class Conversation {
 
   @Id
   public String id;
  
-  public DBObject data;
+  public Data data;
   public String createdDate;
   public String lastModifiedDate;
   public String senderId;
@@ -36,11 +31,4 @@ public class Conversation {
     this.referenceId = referenceId;
   }
 
-  @Override
-  public String toString() {
-    return String.format(
-        "Coonversation[flowId=%s, referenceId='%s', senderId='%s']",
-        flowId, referenceId, senderId);
-  }
-  
 }

@@ -14,6 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kalsym.chatbot.flowbuilder.ProcessResult;
 import com.kalsym.chatbot.flowbuilder.models.daos.Vertex;
+import com.kalsym.chatbot.flowbuilder.models.VertexPayload;
+import com.kalsym.chatbot.flowbuilder.submodels.Option;
+import com.kalsym.chatbot.flowbuilder.submodels.Info;
+import com.kalsym.chatbot.flowbuilder.submodels.Step;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,7 +74,7 @@ public class VertexsController {
     @RequestMapping(method= RequestMethod.POST, value="/")
 	public ResponseEntity<ProcessResult> createVertex(
                 @RequestHeader("Authorization") String auth,
-                @RequestBody(required = true) String jsonRequest
+                @RequestBody(required = true) VertexPayload vertexPayLoad
                 ) {
 		
                 ProcessResult response = new ProcessResult();
@@ -78,18 +83,17 @@ public class VertexsController {
                     // This returns a JSON or XML with the users
                     LOG.info("createVertex. Check token validity:"+auth); 
                     
-                    JSONObject jsonObj = new JSONObject(jsonRequest);
-                    ObjectId flowId = new ObjectId(jsonObj.getString("flowId"));
-                    String customVariableName = jsonObj.getString("customVariableName");                    
-                    JSONArray options = jsonObj.getJSONArray("options");
-                    JSONObject info = jsonObj.getJSONObject("info");
-                    JSONObject step = jsonObj.getJSONObject("step");
+                    String flowId = vertexPayLoad.getFlowId();
+                    String customVariableName = vertexPayLoad.getCustomVariableName();
+                    List<Option> options = vertexPayLoad.getOptions();
+                    Info info = vertexPayLoad.getInfo();
+                    Step step = vertexPayLoad.getStep();
                     
                     Vertex vertex = new Vertex();
                     vertex.flowId=flowId;
                     vertex.customVariableName=customVariableName;
                     
-                    Object infoObject = BasicDBObject.parse(info.toString());
+                    /*Object infoObject = BasicDBObject.parse(info.toString());
                     vertex.info = (DBObject)infoObject;
                     
                     Object stepObject = BasicDBObject.parse(step.toString());
@@ -102,7 +106,11 @@ public class VertexsController {
                         optionArray[i]=(DBObject)optionObject;
                     }
                     vertex.options = optionArray;
+                    */
                     
+                    vertex.info = info;
+                    vertex.step = step;
+                    vertex.options = options;
                     vertexRepositories.save(vertex);
                    
                     LOG.info("["+auth+"] createVertex Finish");
@@ -141,7 +149,7 @@ public class VertexsController {
 	public ResponseEntity<ProcessResult> updateVertex(
                 @RequestHeader("Authorization") String auth,
                 @PathVariable("id") String id,
-                @RequestBody(required = true) String jsonRequest
+                @RequestBody(required = true) VertexPayload vertexPayLoad
                 ) {
 		
                 ProcessResult response = new ProcessResult();
@@ -149,18 +157,29 @@ public class VertexsController {
                     // This returns a JSON or XML with the users
                     LOG.info("updateVertex. Check token validity:"+auth);    
                     
-                    JSONObject jsonObj = new JSONObject(jsonRequest);
+                    /*JSONObject jsonObj = new JSONObject(jsonRequest);
                     ObjectId flowId = new ObjectId(jsonObj.getString("flowId"));
                     String customVariableName = jsonObj.getString("customVariableName");                    
                     JSONArray options = jsonObj.getJSONArray("options");
                     JSONObject info = jsonObj.getJSONObject("info");
                     JSONObject step = jsonObj.getJSONObject("step");
+                    */
+                    
+                    String flowId = vertexPayLoad.getFlowId();
+                    String customVariableName = vertexPayLoad.getCustomVariableName();
+                    List<Option> options = vertexPayLoad.getOptions();
+                    Info info = vertexPayLoad.getInfo();
+                    Step step = vertexPayLoad.getStep();
                     
                     Vertex vertex = new Vertex();
                     vertex.id = id;
                     vertex.flowId=flowId;
                     vertex.customVariableName=customVariableName;
+                    vertex.info = info;
+                    vertex.step = step;
+                    vertex.options = options;
                     
+                    /*
                     Object infoObject = BasicDBObject.parse(info.toString());
                     vertex.info = (DBObject)infoObject;
                     
@@ -174,6 +193,7 @@ public class VertexsController {
                         optionArray[i]=(DBObject)optionObject;
                     }
                     vertex.options = optionArray;
+                    */
                     
                     vertexRepositories.save(vertex);
                     

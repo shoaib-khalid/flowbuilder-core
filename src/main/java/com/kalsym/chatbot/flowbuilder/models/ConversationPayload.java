@@ -4,6 +4,7 @@
  */
 package com.kalsym.chatbot.flowbuilder.models;
 
+import com.kalsym.chatbot.flowbuilder.submodels.Data;
 import com.mongodb.DBObject;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,12 +17,11 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class FlowPayload {
+public class ConversationPayload {
     
-    public String title;
-    public String botId;
-    public String topVertexId;
-    public String description;
-    //public DBObject data;
+  public Data data;
+  public String senderId;
+  public String referenceId;
+  public String flowId;
 
 }
