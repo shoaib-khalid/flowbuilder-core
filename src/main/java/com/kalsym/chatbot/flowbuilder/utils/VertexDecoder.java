@@ -79,23 +79,25 @@ public class VertexDecoder {
             }            
             dataVar.setDataList(dataVariableList);
             
-            JsonArray buttonArray = dataVariable.get("buttons").getAsJsonArray(); 
-            List<Button> buttonList = new ArrayList<>();
-            for (int x=0;x<buttonArray.size();x++) {
-                JsonObject bObject = buttonArray.get(x).getAsJsonObject();            
-                LOG.info("dataVariableArray["+i+"] Button["+x+"]="+bObject.toString());
-                String btnTitle = bObject.get("btnTitle").getAsString();
-                String btnValue = bObject.get("btnValue").getAsString();
-                Button buttonObject = new Button();
-                buttonObject.setIndex(x);
-                buttonObject.setBtnTitle(btnTitle);
-                buttonObject.setBtnValue(btnValue);
-                buttonList.add(buttonObject);
-                String buttonKey = vertexId+","+x;
-                buttonMap.put(buttonKey, buttonObject);
-                LOG.info("dataVariableArray["+i+"] Stored button into hashmap with key:"+buttonKey);
-            }            
-            dataVar.setButtonList(buttonList);
+            if (dataVariable.get("buttons")!=null) {
+                JsonArray buttonArray = dataVariable.get("buttons").getAsJsonArray(); 
+                List<Button> buttonList = new ArrayList<>();
+                for (int x=0;x<buttonArray.size();x++) {
+                    JsonObject bObject = buttonArray.get(x).getAsJsonObject();            
+                    LOG.info("dataVariableArray["+i+"] Button["+x+"]="+bObject.toString());
+                    String btnTitle = bObject.get("btnTitle").getAsString();
+                    String btnValue = bObject.get("btnValue").getAsString();
+                    Button buttonObject = new Button();
+                    buttonObject.setIndex(x);
+                    buttonObject.setBtnTitle(btnTitle);
+                    buttonObject.setBtnValue(btnValue);
+                    buttonList.add(buttonObject);
+                    String buttonKey = vertexId+","+x;
+                    buttonMap.put(buttonKey, buttonObject);
+                    LOG.info("dataVariableArray["+i+"] Stored button into hashmap with key:"+buttonKey);
+                }            
+                dataVar.setButtonList(buttonList);
+            }
             
             LOG.info("dataVariableArray["+i+"] -> type="+type+" vertexId="+vertexId);
             dataVariableMap.put(vertexId, dataVar);
