@@ -4,7 +4,6 @@
  */
 package com.kalsym.chatbot.flowbuilder.repositories;
 
-import com.kalsym.chatbot.flowbuilder.mxmodel.Mxgraphmodel;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import com.kalsym.chatbot.flowbuilder.models.daos.Vertex;
 import java.util.List;

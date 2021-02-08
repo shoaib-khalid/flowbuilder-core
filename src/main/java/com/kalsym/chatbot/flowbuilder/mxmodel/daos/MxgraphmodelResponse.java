@@ -2,7 +2,7 @@
  * Here comes the text of your license
  * Each line should be prefixed with  * 
  */
-package com.kalsym.chatbot.flowbuilder.models.daos;
+package com.kalsym.chatbot.flowbuilder.mxmodel.daos;
 
 /**
  *
@@ -14,19 +14,16 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.BasicDBList;
 
-
-public class Flow {
+public class MxgraphmodelResponse {
 
   @Id
   public String id;
 
-  public String title;
-  public String botId;
-  public String topVertexId;
-  public String description;
-  public String status;
-  //public DBObject data;
-
-  public Flow() {}
+  public Object mxGraphModel;
+  //public Object root;
+  public String flowId;
+  public Object data;
+  
+  public MxgraphmodelResponse() {}
 
 }

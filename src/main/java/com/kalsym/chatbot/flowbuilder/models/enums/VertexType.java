@@ -8,5 +8,7 @@ public enum VertexType {
     TEXT_MESSAGE,
     ACTION,
     CONDITION,
-    MENU_MESSAGE
+    MENU_MESSAGE,
+    HANDOVER,
+    IMMEDIATE_TEXT_MESSAGE
 }

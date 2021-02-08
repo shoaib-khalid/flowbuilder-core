@@ -15,13 +15,12 @@ import com.mongodb.DBObject;
 import com.mongodb.BasicDBList;
 import org.bson.types.ObjectId;
 
-import org.json.JSONObject;
-import org.json.JSONArray;
-
 import com.kalsym.chatbot.flowbuilder.submodels.Option;
 import com.kalsym.chatbot.flowbuilder.submodels.Info;
 import com.kalsym.chatbot.flowbuilder.submodels.Step;
 import com.kalsym.chatbot.flowbuilder.submodels.Action;
+import com.kalsym.chatbot.flowbuilder.submodels.DataVariable;
+import com.kalsym.chatbot.flowbuilder.submodels.Handover;
 
 import java.util.List;
 
@@ -36,11 +35,13 @@ public class Vertex {
   public Step step;
   public String flowId;
   public String customVariableName;
+  //public List<DataVariable> dataVariables;
   public String dataVariable;
   public List<Action> actions;
   public DBObject validation;
   public String mxId;
   public int isTopVertex=0;
+  public Handover handover;
   
   public Vertex() {
   }

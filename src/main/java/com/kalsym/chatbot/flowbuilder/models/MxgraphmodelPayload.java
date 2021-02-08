@@ -10,7 +10,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.bson.types.ObjectId;
-import org.json.JSONObject;
 
 import com.kalsym.chatbot.flowbuilder.submodels.Option;
 import com.kalsym.chatbot.flowbuilder.submodels.Info;
@@ -25,7 +24,7 @@ import com.kalsym.chatbot.flowbuilder.submodels.Step;
 @ToString
 public class MxgraphmodelPayload {
     
-    public Object mxGraphModel;
+    public String mxGraphModel;
     
     
 }
