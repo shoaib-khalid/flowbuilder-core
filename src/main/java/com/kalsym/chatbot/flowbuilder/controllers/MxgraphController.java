@@ -634,7 +634,7 @@ public class MxgraphController {
             
             HashMap<String, Object> finalJsonResponse = new HashMap<>();
             finalJsonResponse.put("mxGraphModel", jsonResponse);
-            finalJsonResponse.put("dataVariable", dataVariableArray);
+            finalJsonResponse.put("data", dataVariableArray);
             
             String jsonString = new Gson().toJson(finalJsonResponse);
             JsonObject resp = new Gson().fromJson(jsonString, JsonObject.class);
