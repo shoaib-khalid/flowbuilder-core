@@ -19,9 +19,6 @@ import com.kalsym.chatbot.flowbuilder.ProcessResult;
 import com.kalsym.chatbot.flowbuilder.mxmodel.daos.MxgraphmodelResponse;
 import com.kalsym.chatbot.flowbuilder.models.daos.Vertex;
 import com.kalsym.chatbot.flowbuilder.models.daos.Flow;
-import com.kalsym.chatbot.flowbuilder.models.daos.Flowdraft;
-import com.kalsym.chatbot.flowbuilder.models.MxgraphmodelPayload;
-import com.kalsym.chatbot.flowbuilder.models.enums.VertexTargetType;
 import com.kalsym.chatbot.flowbuilder.submodels.Option;
 import com.kalsym.chatbot.flowbuilder.submodels.Step;
 import com.kalsym.chatbot.flowbuilder.mxmodel.daos.*;
@@ -29,9 +26,6 @@ import com.kalsym.chatbot.flowbuilder.mxmodel.daos.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 
 import com.kalsym.chatbot.flowbuilder.repositories.VertexsRepositories;
 import com.kalsym.chatbot.flowbuilder.repositories.FlowsRepositories;
@@ -48,8 +42,6 @@ import com.kalsym.chatbot.flowbuilder.utils.VertexDecoder;
 import com.kalsym.chatbot.flowbuilder.utils.VertexDecoderResult;
 import java.util.HashMap;
 import java.util.Map;
-import java.lang.reflect.Field;
-import java.util.LinkedHashMap;
 
 /**
  *
@@ -462,8 +454,9 @@ public class MxgraphController {
                 Map<String, String> vertexMap = new HashMap<>();
                 for (int x = 0; x < vertexList.length; x++) {
                     Vertex vertex = vertexList[x];
-                    LOG.info("[" + auth + "] Vertex[" + x + "] Title = " + vertex.info.getTitle());
-                    LOG.info("[" + auth + "] Vertex[" + x + "] Text = " + vertex.info.getText());
+
+                    LOG.info("[" + auth + "] Vertex[" + x + "] vertex = " + vertex.toString());
+
                     if (vertex.options != null) {
                         LOG.info("[" + auth + "] Vertex[" + x + "] Options = " + vertex.options.toString());
                     }

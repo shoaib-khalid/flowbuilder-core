@@ -23,8 +23,10 @@ import com.kalsym.chatbot.flowbuilder.submodels.DataVariable;
 import com.kalsym.chatbot.flowbuilder.submodels.Handover;
 
 import java.util.List;
+import lombok.ToString;
 
 
+@ToString
 public class Vertex {
 
   @Id
@@ -50,6 +52,4 @@ public class Vertex {
     this.flowId = flowId;
     this.customVariableName = customVariableName;
   }
-
-  
 }

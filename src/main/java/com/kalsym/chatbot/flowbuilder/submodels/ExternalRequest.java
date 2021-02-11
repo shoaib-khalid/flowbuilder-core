@@ -3,6 +3,7 @@ package com.kalsym.chatbot.flowbuilder.submodels;
 import java.util.HashMap;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.http.HttpMethod;
 
 /**
@@ -11,6 +12,7 @@ import org.springframework.http.HttpMethod;
  */
 @Getter
 @Setter
+@ToString
 public class ExternalRequest {
 
     private String url;
