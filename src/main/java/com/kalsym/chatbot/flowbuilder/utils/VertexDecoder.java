@@ -114,7 +114,7 @@ public class VertexDecoder {
                 List<Action> actions = new ArrayList<>();
                 for (int x = 0; x < actionArray.size(); x++) {
                     JsonObject bObject = actionArray.get(x).getAsJsonObject();
-                    LOG.info("dataVariableArray[" + i + "] bObject:" + bObject.toString());
+                    LOG.info("actionArray[" + x + "] bObject:" + bObject.toString());
 
                     Action action = new Action();
                     if (bObject.has("externalRequest")) {
@@ -133,7 +133,7 @@ public class VertexDecoder {
 //                        LOG.info("dataVariableArray[" + i + "] er:" + er.toString());
                         ObjectMapper objectMapper = new ObjectMapper();
                         Gson gson = new Gson();
-                        LOG.info("dataVariableArray[" + i + "] bObject:" + bObject.get("externalRequest").toString());
+                        LOG.info("actionArray[" + x + "] bObject:" + bObject.get("externalRequest").toString());
                         action.setType(VertexActionType.EXTERNAL_REQUEST);
                         JsonObject erJob = bObject.getAsJsonObject("externalRequest");
                         ExternalRequest er = new ExternalRequest();
@@ -283,6 +283,12 @@ public class VertexDecoder {
                         }
                     } else if (dataVar.getType() == VertexType.ACTION) {
                         //vertex type is action
+                        //only 1 datavariable
+                        if (dataVar.getDataList().size() > 0) {
+                            vertex.dataVariable = dataVar.getDataList().get(0).getDataVariable();
+                        }
+                        //set the action to vertex
+                        vertex.actions = dataVar.getActions();
                     } else if (dataVar.getType() == VertexType.HANDOVER) {
                         //vertex type is handover
                         //only 1 datavariable
@@ -417,7 +423,7 @@ public class VertexDecoder {
             }
             s++;
         }
-
+        
         //convert vertex to array to return to caller
         Vertex[] allVertex = new Vertex[vertexMap.size()];
         Iterator hmIterator = vertexMap.entrySet().iterator();
