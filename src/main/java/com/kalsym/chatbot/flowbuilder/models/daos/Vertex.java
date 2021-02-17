@@ -21,6 +21,7 @@ import com.kalsym.chatbot.flowbuilder.submodels.Step;
 import com.kalsym.chatbot.flowbuilder.submodels.Action;
 import com.kalsym.chatbot.flowbuilder.submodels.DataVariable;
 import com.kalsym.chatbot.flowbuilder.submodels.Handover;
+import com.kalsym.chatbot.flowbuilder.submodels.Condition;
 
 import java.util.List;
 import lombok.ToString;
@@ -44,6 +45,7 @@ public class Vertex {
   public String mxId;
   public int isTopVertex=0;
   public Handover handover;
+  public List<Condition> conditions;
   
   public Vertex() {
   }

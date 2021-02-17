@@ -22,5 +22,7 @@ public class MxDataVariable {
     
     private List<Button> buttons;
     
-     private List<Action> actions;
+    private List<Action> actions;
+     
+    private List<Condition> conditions;
 }

@@ -15,6 +15,7 @@ import com.kalsym.chatbot.flowbuilder.submodels.Info;
 import com.kalsym.chatbot.flowbuilder.submodels.DataVariable;
 import com.kalsym.chatbot.flowbuilder.submodels.Handover;
 import com.kalsym.chatbot.flowbuilder.submodels.Button;
+import com.kalsym.chatbot.flowbuilder.submodels.Condition;
 import com.kalsym.chatbot.flowbuilder.mxmodel.*;
 import com.kalsym.chatbot.flowbuilder.mxmodel.daos.*;
 import com.mongodb.BasicDBObject;
@@ -29,9 +30,11 @@ import java.util.List;
 import java.util.Iterator;
 import java.util.ArrayList;
 import com.google.gson.*;
+import com.kalsym.chatbot.flowbuilder.models.enums.ConditionOperator;
 import com.kalsym.chatbot.flowbuilder.models.enums.VertexActionType;
 import com.kalsym.chatbot.flowbuilder.models.enums.VertexType;
 import com.kalsym.chatbot.flowbuilder.submodels.Action;
+import com.kalsym.chatbot.flowbuilder.submodels.ConditionGroup;
 import com.kalsym.chatbot.flowbuilder.submodels.ExternalRequest;
 import com.kalsym.chatbot.flowbuilder.submodels.ExternalRequestBody;
 import com.kalsym.chatbot.flowbuilder.submodels.ExternalRequestReponse;
@@ -160,6 +163,33 @@ public class VertexDecoder {
                 }
                 dataVar.setActions(actions);
 
+            }
+            
+            if (dataVariable.get("conditions") != null) {
+                JsonArray conditionArray = dataVariable.get("conditions").getAsJsonArray();
+                List<Condition> conditions = new ArrayList<>();
+                for (int x = 0; x < conditionArray.size(); x++) {
+                    JsonObject bObject = conditionArray.get(x).getAsJsonObject();
+                    LOG.info("dataVariableArray[" + i + "] Condition[" + x + "]=" + bObject.toString());
+                    
+                    Gson gson = new Gson();
+                    ConditionOperator operator = gson.fromJson(bObject.get("operator"), ConditionOperator.class);
+                    Step step = gson.fromJson(bObject.get("step"), Step.class);
+                    JsonArray groupList = bObject.get("groups").getAsJsonArray();
+                    List<ConditionGroup> groups = new ArrayList<>();
+                    for (int z=0;z<groupList.size();z++) {
+                        JsonElement jsonGroup = groupList.get(z);
+                        ConditionGroup group = gson.fromJson(jsonGroup, ConditionGroup.class);
+                        groups.add(group);
+                    }
+                    
+                    Condition condObject = new Condition();
+                    condObject.setOperator(operator);
+                    condObject.setStep(step);
+                    condObject.setGroups(groups);
+                    conditions.add(condObject);                    
+                }
+                dataVar.setConditions(conditions);
             }
 
             LOG.info("dataVariableArray[" + i + "] -> type=" + type + " vertexId=" + vertexId);
@@ -300,6 +330,14 @@ public class VertexDecoder {
                         handover.setConnectMessage("");
                         handover.setForwardMessage("");
                         vertex.handover = handover;
+                    } else if (dataVar.getType() == VertexType.CONDITION) {
+                        //vertex type is action
+                        //only 1 datavariable
+                        if (dataVar.getDataList().size() > 0) {
+                            vertex.dataVariable = dataVar.getDataList().get(0).getDataVariable();
+                        }
+                        //set the action to vertex
+                        vertex.conditions = dataVar.getConditions();
                     }
                     //set vertex type
                     info.setType(dataVar.getType());
