@@ -204,8 +204,11 @@ public class VertexDecoder {
         JsonArray mxcell = extractJSONArray(jsondata, "mxCell");
         JsonArray userobject = extractJSONArray(jsondata, "UserObject");
         JsonArray triggers = extractJSONArray(jsondata, "triggers");
+        JsonArray conditions = extractJSONArray(jsondata, "conditions");
         JsonArray initialMessages = extractJSONArray(jsondata, "InitialMessage");
-
+        JsonArray connectionStart = extractJSONArray(jsondata, "ConnectionStart");
+        JsonArray connectionEnd = extractJSONArray(jsondata, "ConnectionEnd");
+        
         Map<String, MxObject> objectMap = new HashMap<>();
 
         //extract Vertex Step from edge in mxcell
@@ -537,7 +540,46 @@ public class VertexDecoder {
             }
             result.dataVariableList = mxDataVariableList;
         }
-
+        
+        //set conditions to result
+        //set trigger to result
+        if (conditions != null) {
+            Mxgraphcondition[] conditionList = new Mxgraphcondition[conditions.size()];
+            for (int i = 0; i < conditions.size(); i++) {
+                Mxgraphcondition mxgraphcondition = new Mxgraphcondition();
+                Object dataObject = BasicDBObject.parse(conditions.get(i).toString());
+                mxgraphcondition.conditions = (DBObject) dataObject;
+                mxgraphcondition.mxId = conditions.get(i).getAsJsonObject().get("@id").getAsString();
+                conditionList[i] = mxgraphcondition;
+            }
+            result.conditionList = conditionList;
+        }
+        
+        //set connection start to result
+        if (connectionStart != null) {
+            Mxgraphconnectionstart[] connectionStartList = new Mxgraphconnectionstart[connectionStart.size()];
+            for (int i = 0; i < connectionStart.size(); i++) {
+                Mxgraphconnectionstart mxgraphconnectionstart = new Mxgraphconnectionstart();
+                Object dataObject = BasicDBObject.parse(connectionStart.get(i).toString());
+                mxgraphconnectionstart.connectionstarts = (DBObject) dataObject;
+                mxgraphconnectionstart.mxId = connectionStart.get(i).getAsJsonObject().get("@id").getAsString();
+                connectionStartList[i] = mxgraphconnectionstart;
+            }
+            result.connectionStartList = connectionStartList;
+        }
+        
+        //set connection end to result
+        if (connectionEnd != null) {
+            Mxgraphconnectionend[] connectionEndList = new Mxgraphconnectionend[connectionEnd.size()];
+            for (int i = 0; i < connectionEnd.size(); i++) {
+                Mxgraphconnectionend mxgraphconnectionend = new Mxgraphconnectionend();
+                Object dataObject = BasicDBObject.parse(connectionEnd.get(i).toString());
+                mxgraphconnectionend.connectionends = (DBObject) dataObject;
+                mxgraphconnectionend.mxId = connectionEnd.get(i).getAsJsonObject().get("@id").getAsString();
+                connectionEndList[i] = mxgraphconnectionend;
+            }
+            result.connectionEndList = connectionEndList;
+        }
         return result;
     }
 

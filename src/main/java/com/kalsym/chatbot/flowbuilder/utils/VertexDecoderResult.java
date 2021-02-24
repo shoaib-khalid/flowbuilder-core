@@ -9,6 +9,9 @@ import com.kalsym.chatbot.flowbuilder.mxmodel.daos.Mxgraphmxcell;
 import com.kalsym.chatbot.flowbuilder.mxmodel.daos.Mxgraphuserobject;
 import com.kalsym.chatbot.flowbuilder.mxmodel.daos.Mxgraphtrigger;
 import com.kalsym.chatbot.flowbuilder.mxmodel.daos.Mxgraphdatavariable;
+import com.kalsym.chatbot.flowbuilder.mxmodel.daos.Mxgraphcondition;
+import com.kalsym.chatbot.flowbuilder.mxmodel.daos.Mxgraphconnectionstart;
+import com.kalsym.chatbot.flowbuilder.mxmodel.daos.Mxgraphconnectionend;
 
 /**
  *
@@ -20,4 +23,7 @@ public class VertexDecoderResult {
     public Mxgraphmxcell[] mxCellList;
     public Mxgraphtrigger[] triggerList;  
     public Mxgraphdatavariable[] dataVariableList;
+    public Mxgraphcondition[] conditionList;
+    public Mxgraphconnectionstart[] connectionStartList;
+    public Mxgraphconnectionend[] connectionEndList;
 }

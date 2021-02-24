@@ -33,10 +33,17 @@ import com.kalsym.chatbot.flowbuilder.repositories.MxgraphuserobjectRepositories
 import com.kalsym.chatbot.flowbuilder.repositories.MxgraphmxcellRepositories;
 import com.kalsym.chatbot.flowbuilder.repositories.MxgraphtriggerRepositories;
 import com.kalsym.chatbot.flowbuilder.repositories.MxgraphdatavariableRepositories;
+import com.kalsym.chatbot.flowbuilder.repositories.MxgraphconditionRepositories;
+import com.kalsym.chatbot.flowbuilder.repositories.MxgraphconnectionstartRepositories;
+import com.kalsym.chatbot.flowbuilder.repositories.MxgraphconnectionendRepositories;
 import com.kalsym.chatbot.flowbuilder.repositories.PublishuserobjectRepositories;
 import com.kalsym.chatbot.flowbuilder.repositories.PublishmxcellRepositories;
 import com.kalsym.chatbot.flowbuilder.repositories.PublishtriggerRepositories;
 import com.kalsym.chatbot.flowbuilder.repositories.PublishdatavariableRepositories;
+import com.kalsym.chatbot.flowbuilder.repositories.PublishconditionRepositories;
+import com.kalsym.chatbot.flowbuilder.repositories.PublishconnectionstartRepositories;
+import com.kalsym.chatbot.flowbuilder.repositories.PublishconnectionendRepositories;
+import com.kalsym.chatbot.flowbuilder.repositories.PublishconditionRepositories;
 
 import com.kalsym.chatbot.flowbuilder.utils.VertexDecoder;
 import com.kalsym.chatbot.flowbuilder.utils.VertexDecoderResult;
@@ -71,9 +78,18 @@ public class MxgraphController {
 
     @Autowired
     private MxgraphtriggerRepositories mxTriggerRepositories;
-
+    
+    @Autowired
+    private MxgraphconditionRepositories mxConditionRepositories;
+    
     @Autowired
     private MxgraphdatavariableRepositories mxDataVariableRepositories;
+    
+    @Autowired
+    private MxgraphconnectionstartRepositories mxConnectionStartRepositories;
+    
+    @Autowired
+    private MxgraphconnectionendRepositories mxConnectionEndRepositories;
 
     @Autowired
     private PublishuserobjectRepositories publishUserObjectRepositories;
@@ -83,9 +99,18 @@ public class MxgraphController {
 
     @Autowired
     private PublishtriggerRepositories publishTriggerRepositories;
+    
+    @Autowired
+    private PublishconditionRepositories publishConditionRepositories;
 
     @Autowired
     private PublishdatavariableRepositories publishDataVariableRepositories;
+    
+    @Autowired
+    private PublishconnectionstartRepositories publishConnectionStartRepositories;
+    
+    @Autowired
+    private PublishconnectionendRepositories publishConnectionEndRepositories;
 
     @RequestMapping(method = RequestMethod.GET, value = "/{flow-id}")
     public ResponseEntity<ProcessResult> getMxObject(
@@ -132,7 +157,31 @@ public class MxgraphController {
                 LOG.info("datavariable[" + i + "]" + dataVariableList.get(i).dataVariable.toString());
                 dataVariableArray.add(dataVariableList.get(i).dataVariable);
             }
-
+            
+            //retrieve condition
+            List<Mxgraphcondition> conditionList = mxConditionRepositories.getMxByFlowId(flowId);
+            List<Object> conditionArray = new ArrayList<>();
+            for (int i = 0; i < conditionList.size(); i++) {
+                LOG.info("condition[" + i + "]" + conditionList.get(i).conditions.toString());
+                conditionArray.add(conditionList.get(i).conditions);
+            }
+            
+            //retrieve connection start
+            List<Mxgraphconnectionstart> connectionStartList = mxConnectionStartRepositories.getMxByFlowId(flowId);
+            List<Object> connectionStartArray = new ArrayList<>();
+            for (int i = 0; i < connectionStartList.size(); i++) {
+                LOG.info("condition[" + i + "]" + connectionStartList.get(i).connectionstarts.toString());
+                connectionStartArray.add(connectionStartList.get(i).connectionstarts);
+            }
+            
+            //retrieve connection end
+            List<Mxgraphconnectionend> connectionEndList = mxConnectionEndRepositories.getMxByFlowId(flowId);
+            List<Object> connectionEndArray = new ArrayList<>();
+            for (int i = 0; i < connectionEndList.size(); i++) {
+                LOG.info("condition[" + i + "]" + connectionEndList.get(i).connectionends.toString());
+                connectionEndArray.add(connectionEndList.get(i).connectionends);
+            }
+            
             HashMap<String, Object> rootObject = new HashMap<>();
             if (mxcellArray.size() > 0) {
                 rootObject.put("mxCell", mxcellArray);
@@ -142,6 +191,15 @@ public class MxgraphController {
             }
             if (triggerArray.size() > 0) {
                 rootObject.put("triggers", triggerArray);
+            }
+            if (conditionArray.size() > 0) {
+                rootObject.put("conditions", conditionArray);
+            }
+            if (connectionStartArray.size() > 0) {
+                rootObject.put("ConnectionStart", connectionStartArray);
+            }
+            if (connectionEndArray.size() > 0) {
+                rootObject.put("ConnectionEnd", connectionEndArray);
             }
 
             HashMap<String, Object> jsonResponse = new HashMap<>();
@@ -211,7 +269,31 @@ public class MxgraphController {
                 LOG.info("datavariable[" + i + "]" + dataVariableList.get(i).dataVariable.toString());
                 dataVariableArray.add(dataVariableList.get(i).dataVariable);
             }
-
+            
+            List<Publishcondition> conditionList = publishConditionRepositories.getMxByFlowId(flowId);
+            //JSONArray userObjectArray = new JSONArray();
+            List<Object> conditionArray = new ArrayList<>();
+            for (int i = 0; i < conditionList.size(); i++) {
+                LOG.info("condition[" + i + "]" + conditionList.get(i).conditions.toString());
+                conditionArray.add(conditionList.get(i).conditions);
+            }
+            
+            List<Publishconnectionstart> connectionStartList = publishConnectionStartRepositories.getMxByFlowId(flowId);
+            //JSONArray userObjectArray = new JSONArray();
+            List<Object> connectionStartArray = new ArrayList<>();
+            for (int i = 0; i < connectionStartList.size(); i++) {
+                LOG.info("connectionstart[" + i + "]" + connectionStartList.get(i).connectionstarts.toString());
+                connectionStartArray.add(connectionStartList.get(i).connectionstarts);
+            }
+            
+            List<Publishconnectionend> connectionEndList = publishConnectionEndRepositories.getMxByFlowId(flowId);
+            //JSONArray userObjectArray = new JSONArray();
+            List<Object> connectionEndArray = new ArrayList<>();
+            for (int i = 0; i < connectionEndList.size(); i++) {
+                LOG.info("connectionend[" + i + "]" + connectionEndList.get(i).connectionends.toString());
+                connectionEndArray.add(connectionEndList.get(i).connectionends);
+            }
+                    
             HashMap<String, Object> rootObject = new HashMap<>();
             if (mxcellArray.size() > 0) {
                 rootObject.put("mxCell", mxcellArray);
@@ -221,6 +303,15 @@ public class MxgraphController {
             }
             if (triggerArray.size() > 0) {
                 rootObject.put("triggers", triggerArray);
+            }
+            if (conditionArray.size() > 0) {
+                rootObject.put("conditions", conditionArray);
+            }
+            if (connectionStartArray.size() > 0) {
+                rootObject.put("ConnectionStart", connectionStartArray);
+            }
+            if (connectionEndArray.size() > 0) {
+                rootObject.put("ConnectionEnd", connectionEndArray);
             }
 
             HashMap<String, Object> jsonResponse = new HashMap<>();
@@ -348,7 +439,40 @@ public class MxgraphController {
                     mxDataVariableRepositories.save(dataVariableList[x]);
                 }
             }
-
+            
+            //save as conditions object
+            mxConditionRepositories.deleteConditionByFlowId(flowId);
+            if (result.conditionList != null) {
+                Mxgraphcondition[] conditionList = result.conditionList;
+                for (int x = 0; x < conditionList.length; x++) {
+                    LOG.info("[" + auth + "] conditionList[" + x + "] : " + conditionList[x].toString());
+                    conditionList[x].flowId = flowId;
+                    mxConditionRepositories.save(conditionList[x]);
+                }
+            }
+            
+            //save as connection start
+            mxConnectionStartRepositories.deleteConnectionStartByFlowId(flowId);
+            if (result.connectionStartList != null) {
+                Mxgraphconnectionstart[] connectionStartList = result.connectionStartList;
+                for (int x = 0; x < connectionStartList.length; x++) {
+                    LOG.info("[" + auth + "] connectionStartList[" + x + "] : " + connectionStartList[x].toString());
+                    connectionStartList[x].flowId = flowId;
+                    mxConnectionStartRepositories.save(connectionStartList[x]);
+                }
+            }
+            
+            //save as connection end
+            mxConnectionEndRepositories.deleteConnectionEndByFlowId(flowId);
+            if (result.connectionEndList != null) {
+                Mxgraphconnectionend[] connectionEndList = result.connectionEndList;
+                for (int x = 0; x < connectionEndList.length; x++) {
+                    LOG.info("[" + auth + "] connectionEndList[" + x + "] : " + connectionEndList[x].toString());
+                    connectionEndList[x].flowId = flowId;
+                    mxConnectionEndRepositories.save(connectionEndList[x]);
+                }
+            }
+            
             //update targetId inside Step & Option.Step with new generated vertexId
             //soureId no need to update, not important to Core module
             for (int x = 0; x < vertexList.length; x++) {
@@ -416,6 +540,9 @@ public class MxgraphController {
             mxCellRepositories.deleteMxcellByFlowId(flowId);
             mxUserObjectRepositories.deleteUserObjectByFlowId(flowId);
             mxTriggerRepositories.deleteTriggerByFlowId(flowId);
+            mxConditionRepositories.deleteConditionByFlowId(flowId);
+            mxConnectionStartRepositories.deleteConnectionStartByFlowId(flowId);
+            mxConnectionEndRepositories.deleteConnectionEndByFlowId(flowId);
             LOG.info("[" + auth + "] deleteMx Finish");
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception exp) {
@@ -537,6 +664,15 @@ public class MxgraphController {
                             } else if (objectType.equalsIgnoreCase("mxcell")) {
                                 JsonObject objectValue = jsonObj.get(objectType).getAsJsonObject();
                                 Mxgraphmxcell.UpdateMxcell(flowId, actionType, objectValue, mxCellRepositories);
+                            } else if (objectType.equalsIgnoreCase("conditions")) {
+                                JsonObject objectValue = jsonObj.get(objectType).getAsJsonObject();
+                                Mxgraphcondition.UpdateCondition(flowId, actionType, objectValue, mxConditionRepositories);
+                            } else if (objectType.equalsIgnoreCase("ConnectionStart")) {
+                                JsonObject objectValue = jsonObj.get(objectType).getAsJsonObject();
+                                Mxgraphconnectionstart.UpdateConnectionStart(flowId, actionType, objectValue, mxConnectionStartRepositories);
+                            } else if (objectType.equalsIgnoreCase("ConnectionEnd")) {
+                                JsonObject objectValue = jsonObj.get(objectType).getAsJsonObject();
+                                Mxgraphconnectionend.UpdateConnectionEnd(flowId, actionType, objectValue, mxConnectionEndRepositories);                            
                             }
                         }
                     } else if (mainObjectType.equalsIgnoreCase("data")) {
@@ -606,12 +742,42 @@ public class MxgraphController {
             LOG.info("dataVariable[" + i + "]" + dataVariableList.get(i).dataVariable.toString());
             dataVariableArray.add(dataVariableList.get(i).dataVariable);
         }
-
+        
+        //retrieve condition
+        List<Mxgraphcondition> conditionList = mxConditionRepositories.getMxByFlowId(flowId);
+        //JSONArray userObjectArray = new JSONArray();
+        List<Object> conditionArray = new ArrayList<>();
+        for (int i = 0; i < conditionList.size(); i++) {
+            LOG.info("conditions[" + i + "]" + conditionList.get(i).conditions.toString());
+            conditionArray.add(conditionList.get(i).conditions);
+        }
+        
+        //retrieve connection start
+        List<Mxgraphconnectionstart> connectionStartList = mxConnectionStartRepositories.getMxByFlowId(flowId);
+        //JSONArray userObjectArray = new JSONArray();
+        List<Object> connectionStartArray = new ArrayList<>();
+        for (int i = 0; i < connectionStartList.size(); i++) {
+            LOG.info("connectionstart[" + i + "]" + connectionStartList.get(i).connectionstarts.toString());
+            connectionStartArray.add(connectionStartList.get(i).connectionstarts);
+        }
+        
+        //retrieve connnection end
+        List<Mxgraphconnectionend> connectionEndList = mxConnectionEndRepositories.getMxByFlowId(flowId);
+        //JSONArray userObjectArray = new JSONArray();
+        List<Object> connectionEndArray = new ArrayList<>();
+        for (int i = 0; i < connectionEndList.size(); i++) {
+            LOG.info("connectionend[" + i + "]" + connectionEndList.get(i).connectionends.toString());
+            connectionEndArray.add(connectionEndList.get(i).connectionends);
+        }
+        
         HashMap<String, Object> rootObject = new HashMap<>();
         rootObject.put("UserObject", userObjectArray);
         rootObject.put("triggers", triggerArray);
         rootObject.put("mxCell", mxcellArray);
-
+        rootObject.put("conditions", conditionArray);
+        rootObject.put("ConnectionStart", connectionStartArray);
+        rootObject.put("ConnectionEnd", connectionEndArray);
+        
         HashMap<String, Object> jsonResponse = new HashMap<>();
         jsonResponse.put("root", rootObject);
 
@@ -631,6 +797,9 @@ public class MxgraphController {
         publishMxCellRepositories.deleteMxcellByFlowId(flowId);//mxcell
         publishTriggerRepositories.deleteTriggerByFlowId(flowId);//trigger
         publishDataVariableRepositories.deleteDataVariableByFlowId(flowId);//dataVariable
+        publishConditionRepositories.deleteConditionByFlowId(flowId);//dataVariable
+        publishConnectionStartRepositories.deleteConnectionStartByFlowId(flowId);//dataVariable
+        publishConnectionEndRepositories.deleteConnectionEndByFlowId(flowId);//dataVariable
         LOG.info("all publish mx object deleted for flowId:" + flowId);
 
         //retrieve userObject
@@ -679,6 +848,39 @@ public class MxgraphController {
             publishdatavariable.vertexId = mxgraphdatavariable.vertexId;
             publishDataVariableRepositories.save(publishdatavariable);
             LOG.info("dataVariable[" + i + "] copied to publish");
+        }
+        
+        //retrieve conditions
+        List<Mxgraphcondition> conditionList = mxConditionRepositories.getMxByFlowId(flowId);
+        for (int i = 0; i < conditionList.size(); i++) {
+            Mxgraphcondition mxgraphcondition = conditionList.get(i);
+            Publishcondition publishcondition = new Publishcondition();
+            publishcondition.flowId = mxgraphcondition.flowId;
+            publishcondition.conditions = mxgraphcondition.conditions;
+            publishConditionRepositories.save(publishcondition);
+            LOG.info("condition[" + i + "] copied to publish");
+        }
+        
+        //retrieve connection start
+        List<Mxgraphconnectionstart> connectionStartList = mxConnectionStartRepositories.getMxByFlowId(flowId);
+        for (int i = 0; i < connectionStartList.size(); i++) {
+            Mxgraphconnectionstart mxgraphconnectionstart = connectionStartList.get(i);
+            Publishconnectionstart connectionStart = new Publishconnectionstart();
+            connectionStart.flowId = mxgraphconnectionstart.flowId;
+            connectionStart.connectionstarts = mxgraphconnectionstart.connectionstarts;
+            publishConnectionStartRepositories.save(connectionStart);
+            LOG.info("connectionStart[" + i + "] copied to publish");
+        }
+        
+        //retrieve connection end
+        List<Mxgraphconnectionend> connectionEndList = mxConnectionEndRepositories.getMxByFlowId(flowId);
+        for (int i = 0; i < connectionEndList.size(); i++) {
+            Mxgraphconnectionend mxgraphconnectionend = connectionEndList.get(i);
+            Publishconnectionend connectionEnd = new Publishconnectionend();
+            connectionEnd.flowId = mxgraphconnectionend.flowId;
+            connectionEnd.connectionends = mxgraphconnectionend.connectionends;
+            publishConnectionEndRepositories.save(connectionEnd);
+            LOG.info("connectionEnd[" + i + "] copied to publish");
         }
 
     }
