@@ -89,16 +89,16 @@ public class  AuthService {
         String JSONObject = jsonRequest.toString();
         LOG.info("\nConverted JSONObject ==> " + JSONObject);
                 
-        HttpResult httpResult = HttpConnection.SendHttpRequest("SYNC-AUTHORITIES", this.loginUrl, "POST", getLoginHttpHeader(), JSONObject, this.connectTimeout, this.waitTimeout);
-        LOG.info("HTTP Result httpResponseCode:"+httpResult.httpResponseCode+" resultCode:"+httpResult.resultCode+" resultString:"+httpResult.resultString);
-        
-        result.isSuccess=false;
-        if (httpResult.httpResponseCode==200 || httpResult.httpResponseCode==202) {
-            //extract token
-            JsonObject resp = new Gson().fromJson(httpResult.resultString, JsonObject.class);
-            result.returnString = resp.get("data").getAsJsonObject().get("session").getAsJsonObject().get("id").getAsString();            
-            result.isSuccess=true;
-        }
+//        HttpResult httpResult = HttpConnection.SendHttpRequest("SYNC-AUTHORITIES", this.loginUrl, "POST", getLoginHttpHeader(), JSONObject, this.connectTimeout, this.waitTimeout);
+//        LOG.info("HTTP Result httpResponseCode:"+httpResult.httpResponseCode+" resultCode:"+httpResult.resultCode+" resultString:"+httpResult.resultString);
+//        
+//        result.isSuccess=false;
+//        if (httpResult.httpResponseCode==200 || httpResult.httpResponseCode==202) {
+//            //extract token
+//            JsonObject resp = new Gson().fromJson(httpResult.resultString, JsonObject.class);
+//            result.returnString = resp.get("data").getAsJsonObject().get("session").getAsJsonObject().get("id").getAsString();            
+//            result.isSuccess=true;
+//        }
         return result;
 
     }

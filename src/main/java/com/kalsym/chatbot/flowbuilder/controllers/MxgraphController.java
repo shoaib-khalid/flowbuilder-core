@@ -49,6 +49,7 @@ import com.kalsym.chatbot.flowbuilder.utils.VertexDecoder;
 import com.kalsym.chatbot.flowbuilder.utils.VertexDecoderResult;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 /**
  *
@@ -78,16 +79,16 @@ public class MxgraphController {
 
     @Autowired
     private MxgraphtriggerRepositories mxTriggerRepositories;
-    
+
     @Autowired
     private MxgraphconditionRepositories mxConditionRepositories;
-    
+
     @Autowired
     private MxgraphdatavariableRepositories mxDataVariableRepositories;
-    
+
     @Autowired
     private MxgraphconnectionstartRepositories mxConnectionStartRepositories;
-    
+
     @Autowired
     private MxgraphconnectionendRepositories mxConnectionEndRepositories;
 
@@ -99,20 +100,21 @@ public class MxgraphController {
 
     @Autowired
     private PublishtriggerRepositories publishTriggerRepositories;
-    
+
     @Autowired
     private PublishconditionRepositories publishConditionRepositories;
 
     @Autowired
     private PublishdatavariableRepositories publishDataVariableRepositories;
-    
+
     @Autowired
     private PublishconnectionstartRepositories publishConnectionStartRepositories;
-    
+
     @Autowired
     private PublishconnectionendRepositories publishConnectionEndRepositories;
 
-    @RequestMapping(method = RequestMethod.GET, value = "/{flow-id}")
+    @RequestMapping(method = RequestMethod.GET, value = "/{flow-id}", name = "mxgraph-get-by-flowId")
+    @PreAuthorize("hasAnyAuthority('mxgraph-get-by-flowId', 'all')")
     public ResponseEntity<ProcessResult> getMxObject(
             @RequestHeader("Authorization") String auth,
             @PathVariable("flow-id") String flowId
@@ -157,7 +159,7 @@ public class MxgraphController {
                 LOG.info("datavariable[" + i + "]" + dataVariableList.get(i).dataVariable.toString());
                 dataVariableArray.add(dataVariableList.get(i).dataVariable);
             }
-            
+
             //retrieve condition
             List<Mxgraphcondition> conditionList = mxConditionRepositories.getMxByFlowId(flowId);
             List<Object> conditionArray = new ArrayList<>();
@@ -165,7 +167,7 @@ public class MxgraphController {
                 LOG.info("condition[" + i + "]" + conditionList.get(i).conditions.toString());
                 conditionArray.add(conditionList.get(i).conditions);
             }
-            
+
             //retrieve connection start
             List<Mxgraphconnectionstart> connectionStartList = mxConnectionStartRepositories.getMxByFlowId(flowId);
             List<Object> connectionStartArray = new ArrayList<>();
@@ -173,7 +175,7 @@ public class MxgraphController {
                 LOG.info("condition[" + i + "]" + connectionStartList.get(i).connectionstarts.toString());
                 connectionStartArray.add(connectionStartList.get(i).connectionstarts);
             }
-            
+
             //retrieve connection end
             List<Mxgraphconnectionend> connectionEndList = mxConnectionEndRepositories.getMxByFlowId(flowId);
             List<Object> connectionEndArray = new ArrayList<>();
@@ -181,7 +183,7 @@ public class MxgraphController {
                 LOG.info("condition[" + i + "]" + connectionEndList.get(i).connectionends.toString());
                 connectionEndArray.add(connectionEndList.get(i).connectionends);
             }
-            
+
             HashMap<String, Object> rootObject = new HashMap<>();
             if (mxcellArray.size() > 0) {
                 rootObject.put("mxCell", mxcellArray);
@@ -224,7 +226,8 @@ public class MxgraphController {
         }
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/publish/{flow-id}")
+    @RequestMapping(method = RequestMethod.GET, value = "/publish/{flow-id}", name = "mxgraph-get-publish-by-flowId")
+    @PreAuthorize("hasAnyAuthority('mxgraph-get-publish-by-flowId', 'all')")
     public ResponseEntity<ProcessResult> getPublishMxObject(
             @RequestHeader("Authorization") String auth,
             @PathVariable("flow-id") String flowId
@@ -269,7 +272,7 @@ public class MxgraphController {
                 LOG.info("datavariable[" + i + "]" + dataVariableList.get(i).dataVariable.toString());
                 dataVariableArray.add(dataVariableList.get(i).dataVariable);
             }
-            
+
             List<Publishcondition> conditionList = publishConditionRepositories.getMxByFlowId(flowId);
             //JSONArray userObjectArray = new JSONArray();
             List<Object> conditionArray = new ArrayList<>();
@@ -277,7 +280,7 @@ public class MxgraphController {
                 LOG.info("condition[" + i + "]" + conditionList.get(i).conditions.toString());
                 conditionArray.add(conditionList.get(i).conditions);
             }
-            
+
             List<Publishconnectionstart> connectionStartList = publishConnectionStartRepositories.getMxByFlowId(flowId);
             //JSONArray userObjectArray = new JSONArray();
             List<Object> connectionStartArray = new ArrayList<>();
@@ -285,7 +288,7 @@ public class MxgraphController {
                 LOG.info("connectionstart[" + i + "]" + connectionStartList.get(i).connectionstarts.toString());
                 connectionStartArray.add(connectionStartList.get(i).connectionstarts);
             }
-            
+
             List<Publishconnectionend> connectionEndList = publishConnectionEndRepositories.getMxByFlowId(flowId);
             //JSONArray userObjectArray = new JSONArray();
             List<Object> connectionEndArray = new ArrayList<>();
@@ -293,7 +296,7 @@ public class MxgraphController {
                 LOG.info("connectionend[" + i + "]" + connectionEndList.get(i).connectionends.toString());
                 connectionEndArray.add(connectionEndList.get(i).connectionends);
             }
-                    
+
             HashMap<String, Object> rootObject = new HashMap<>();
             if (mxcellArray.size() > 0) {
                 rootObject.put("mxCell", mxcellArray);
@@ -336,7 +339,8 @@ public class MxgraphController {
         }
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/{flow-id}")
+    @RequestMapping(method = RequestMethod.POST, value = "/{flow-id}", name = "mxgraph-post-by-flowId")
+    @PreAuthorize("hasAnyAuthority('mxgraph-post-by-flowId', 'all')")
     public ResponseEntity<ProcessResult> createAndUpdateMx(
             @RequestHeader("Authorization") String auth,
             @PathVariable("flow-id") String flowId,
@@ -439,7 +443,7 @@ public class MxgraphController {
                     mxDataVariableRepositories.save(dataVariableList[x]);
                 }
             }
-            
+
             //save as conditions object
             mxConditionRepositories.deleteConditionByFlowId(flowId);
             if (result.conditionList != null) {
@@ -450,7 +454,7 @@ public class MxgraphController {
                     mxConditionRepositories.save(conditionList[x]);
                 }
             }
-            
+
             //save as connection start
             mxConnectionStartRepositories.deleteConnectionStartByFlowId(flowId);
             if (result.connectionStartList != null) {
@@ -461,7 +465,7 @@ public class MxgraphController {
                     mxConnectionStartRepositories.save(connectionStartList[x]);
                 }
             }
-            
+
             //save as connection end
             mxConnectionEndRepositories.deleteConnectionEndByFlowId(flowId);
             if (result.connectionEndList != null) {
@@ -472,7 +476,7 @@ public class MxgraphController {
                     mxConnectionEndRepositories.save(connectionEndList[x]);
                 }
             }
-            
+
             //update targetId inside Step & Option.Step with new generated vertexId
             //soureId no need to update, not important to Core module
             for (int x = 0; x < vertexList.length; x++) {
@@ -526,7 +530,8 @@ public class MxgraphController {
         }
     }
 
-    @RequestMapping(method = RequestMethod.DELETE, value = "/{flow-id}")
+    @RequestMapping(method = RequestMethod.DELETE, value = "/{flow-id}", name = "mxgraph-delete-by-flowId")
+    @PreAuthorize("hasAnyAuthority('mxgraph-delete-by-flowId', 'all')")
     public ResponseEntity<ProcessResult> deleteMx(
             @RequestHeader("Authorization") String auth,
             @PathVariable("flowId") String flowId
@@ -552,7 +557,8 @@ public class MxgraphController {
         }
     }
 
-    @RequestMapping(method = RequestMethod.PATCH, value = "/{action-type}/{flow-id}")
+    @RequestMapping(method = RequestMethod.PATCH, value = "/{action-type}/{flow-id}", name = "mxgraph-path-by-actionType-flowId")
+    @PreAuthorize("hasAnyAuthority('mxgraph-path-by-actionType-flowId', 'all')")
     public ResponseEntity<ProcessResult> autoSaveMx(
             @RequestHeader("Authorization") String auth,
             @PathVariable("flow-id") String flowId,
@@ -672,7 +678,7 @@ public class MxgraphController {
                                 Mxgraphconnectionstart.UpdateConnectionStart(flowId, actionType, objectValue, mxConnectionStartRepositories);
                             } else if (objectType.equalsIgnoreCase("ConnectionEnd")) {
                                 JsonObject objectValue = jsonObj.get(objectType).getAsJsonObject();
-                                Mxgraphconnectionend.UpdateConnectionEnd(flowId, actionType, objectValue, mxConnectionEndRepositories);                            
+                                Mxgraphconnectionend.UpdateConnectionEnd(flowId, actionType, objectValue, mxConnectionEndRepositories);
                             }
                         }
                     } else if (mainObjectType.equalsIgnoreCase("data")) {
@@ -742,7 +748,7 @@ public class MxgraphController {
             LOG.info("dataVariable[" + i + "]" + dataVariableList.get(i).dataVariable.toString());
             dataVariableArray.add(dataVariableList.get(i).dataVariable);
         }
-        
+
         //retrieve condition
         List<Mxgraphcondition> conditionList = mxConditionRepositories.getMxByFlowId(flowId);
         //JSONArray userObjectArray = new JSONArray();
@@ -751,7 +757,7 @@ public class MxgraphController {
             LOG.info("conditions[" + i + "]" + conditionList.get(i).conditions.toString());
             conditionArray.add(conditionList.get(i).conditions);
         }
-        
+
         //retrieve connection start
         List<Mxgraphconnectionstart> connectionStartList = mxConnectionStartRepositories.getMxByFlowId(flowId);
         //JSONArray userObjectArray = new JSONArray();
@@ -760,7 +766,7 @@ public class MxgraphController {
             LOG.info("connectionstart[" + i + "]" + connectionStartList.get(i).connectionstarts.toString());
             connectionStartArray.add(connectionStartList.get(i).connectionstarts);
         }
-        
+
         //retrieve connnection end
         List<Mxgraphconnectionend> connectionEndList = mxConnectionEndRepositories.getMxByFlowId(flowId);
         //JSONArray userObjectArray = new JSONArray();
@@ -769,7 +775,7 @@ public class MxgraphController {
             LOG.info("connectionend[" + i + "]" + connectionEndList.get(i).connectionends.toString());
             connectionEndArray.add(connectionEndList.get(i).connectionends);
         }
-        
+
         HashMap<String, Object> rootObject = new HashMap<>();
         rootObject.put("UserObject", userObjectArray);
         rootObject.put("triggers", triggerArray);
@@ -777,7 +783,7 @@ public class MxgraphController {
         rootObject.put("conditions", conditionArray);
         rootObject.put("ConnectionStart", connectionStartArray);
         rootObject.put("ConnectionEnd", connectionEndArray);
-        
+
         HashMap<String, Object> jsonResponse = new HashMap<>();
         jsonResponse.put("root", rootObject);
 
@@ -849,7 +855,7 @@ public class MxgraphController {
             publishDataVariableRepositories.save(publishdatavariable);
             LOG.info("dataVariable[" + i + "] copied to publish");
         }
-        
+
         //retrieve conditions
         List<Mxgraphcondition> conditionList = mxConditionRepositories.getMxByFlowId(flowId);
         for (int i = 0; i < conditionList.size(); i++) {
@@ -860,7 +866,7 @@ public class MxgraphController {
             publishConditionRepositories.save(publishcondition);
             LOG.info("condition[" + i + "] copied to publish");
         }
-        
+
         //retrieve connection start
         List<Mxgraphconnectionstart> connectionStartList = mxConnectionStartRepositories.getMxByFlowId(flowId);
         for (int i = 0; i < connectionStartList.size(); i++) {
@@ -871,7 +877,7 @@ public class MxgraphController {
             publishConnectionStartRepositories.save(connectionStart);
             LOG.info("connectionStart[" + i + "] copied to publish");
         }
-        
+
         //retrieve connection end
         List<Mxgraphconnectionend> connectionEndList = mxConnectionEndRepositories.getMxByFlowId(flowId);
         for (int i = 0; i < connectionEndList.size(); i++) {
