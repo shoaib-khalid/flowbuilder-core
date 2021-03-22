@@ -519,6 +519,7 @@ public class MxgraphController {
             Flow currentFlow = flow.get();
             currentFlow.topVertexId = topVertexId;
             currentFlow.status = "draft";
+          
             flowRepositories.save(currentFlow);
 
             LOG.info("[" + auth + "] createMx Finish");
@@ -630,9 +631,10 @@ public class MxgraphController {
                                 //set option value = targetId
                                 //option.setValue(newTargetId);
                             }
-                        }
-                        vertexRepositories.save(vertex);
+                        }                        
                     }
+                    //store vertex in db
+                    vertexRepositories.save(vertex);
                 }
 
                 //update topVertexId
@@ -650,6 +652,50 @@ public class MxgraphController {
                 //copy object to publish collection
                 PublishMxObject(flowId);
                 LOG.info("[" + auth + "] autoSaveMx. flowId:" + flowId + " Mx Object copied to publish");
+                
+                //update botIds
+                JsonObject mainJsonObj = new Gson().fromJson(mxObject, JsonObject.class);
+                LOG.info("[" + auth + "] botIds:"+mainJsonObj.toString());
+                
+                JsonArray botIds = new JsonArray();
+                if (mainJsonObj.get("botIds")!=null) {
+                    botIds = mainJsonObj.get("botIds").getAsJsonArray();
+                }
+                
+                if (botIds.size()>0) {
+                    String[] botIdArray = new String[botIds.size()];
+                    for (int i=0;i<botIds.size();i++) {
+                        LOG.info("[" + auth + "]  botIds:"+botIds.get(i).toString());
+                        botIdArray[i] = botIds.get(i).getAsString();
+                        //remove botId in other flow
+                        List<Flow> foundFlowList = flowRepositories.getByBotIds(botIdArray[i]);
+                        LOG.info("[" + auth + "] Found flow with botId:"+botIdArray[i]+" : "+foundFlowList.size());
+                        for (int x=0;x<foundFlowList.size();x++) {
+                            Flow foundFlow = foundFlowList.get(x);
+                            String[] newBotIds = new String[foundFlow.botIds.length-1];
+                            int f=0;
+                            for (int y=0;y<foundFlow.botIds.length;y++) {
+                                if (!foundFlow.botIds[y].equals(botIdArray[i])) {
+                                    newBotIds[f] = foundFlow.botIds[y];
+                                    f++;        
+                                }
+                            }
+                            LOG.info("[" + auth + "] foundFlow:"+foundFlow.id+" newBotIds:"+newBotIds.toString());
+                            foundFlow.botIds = newBotIds;
+                            flowRepositories.save(foundFlow);
+                        }
+                    }
+                    //update botId into flow
+                    Optional<Flow> flowList2 = flowRepositories.findById(flowId);
+                    if (flowList2.isPresent()) {
+                        Flow currentFlow = flowList2.get();
+                        currentFlow.botIds = botIdArray;
+                        flowRepositories.save(currentFlow);
+                        LOG.info("[" + auth + "] autoSaveMx. flowId:" + flowId + " Flow Botids updated");
+                    } else {
+                        LOG.info("[" + auth + "] autoSaveMx. flowId:" + flowId + " Flow not found");
+                    }
+                }
             } else {
                 LOG.info("[" + auth + "] autoSaveMx. flowId:" + flowId + " Update mxobject");
                 JsonObject mainJsonObj = new Gson().fromJson(mxObject, JsonObject.class);
@@ -666,7 +712,7 @@ public class MxgraphController {
                                 Mxgraphuserobject.UpdateUserObject(flowId, actionType, objectValue, mxUserObjectRepositories, mxCellRepositories, mxTriggerRepositories);
                             } else if (objectType.equalsIgnoreCase("triggers")) {
                                 JsonObject objectValue = jsonObj.get(objectType).getAsJsonObject();
-                                Mxgraphtrigger.UpdateTrigger(flowId, actionType, objectValue, mxTriggerRepositories);
+                                Mxgraphtrigger.UpdateTrigger(flowId, actionType, objectValue, mxTriggerRepositories, mxConnectionStartRepositories, mxConnectionEndRepositories);
                             } else if (objectType.equalsIgnoreCase("mxcell")) {
                                 JsonObject objectValue = jsonObj.get(objectType).getAsJsonObject();
                                 Mxgraphmxcell.UpdateMxcell(flowId, actionType, objectValue, mxCellRepositories);

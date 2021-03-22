@@ -23,8 +23,8 @@ public interface FlowsRepositories extends MongoRepository<Flow, String> {
      * @param topVertexId
      * @return  complete mxgraph object
      */
-    @Query("{'botId' : ?0, 'topVertexId' : ?1}")
-    public List <Flow> getByBotIdAndTopVertexId(
+    @Query("{'botIds' : ?0, 'topVertexId' : ?1}")
+    public List <Flow> getByBotIdsAndTopVertexId(
             @Param("botId") String botId,
             @Param("topVertexId") String topVertexId
     );
@@ -35,8 +35,18 @@ public interface FlowsRepositories extends MongoRepository<Flow, String> {
      * @param botId
      * @return  complete mxgraph object
      */
-    @Query("{'botId' : ?0}")
-    public List <Flow> getByBotId(
+    @Query("{'botIds' : ?0}")
+    public List <Flow> getByBotIds(
             @Param("botId") String botId
+    );
+    
+     /**
+     * Finds mxgraph by ownerId
+     * @param botId
+     * @return  complete mxgraph object
+     */
+    @Query("{'ownerId' : ?0}")
+    public List <Flow> getByOwnerId(
+            @Param("ownerId") String ownerId
     );
 }

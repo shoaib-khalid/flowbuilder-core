@@ -54,7 +54,7 @@ public interface MxgraphconnectionendRepositories extends MongoRepository<Mxgrap
      * @param userObjectMxId
      * @return  complete mxtrigger object
      */
-   @Query("{'flowId' : ?0, 'conditions.mxCell.@parent' : ?1}")
+   @Query("{'flowId' : ?0, 'connectionends.mxCell.@parent' : ?1}")
    public List<Mxgraphconnectionend> findByUserObjectMxId(
             @Param("flowId") String flowId,
             @Param("userObjectMxId") String userObjectMxId

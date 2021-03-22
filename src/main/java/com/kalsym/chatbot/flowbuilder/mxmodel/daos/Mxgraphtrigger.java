@@ -16,6 +16,9 @@ import com.mongodb.BasicDBList;
 import com.google.gson.*;
 
 import com.kalsym.chatbot.flowbuilder.repositories.MxgraphtriggerRepositories;
+import com.kalsym.chatbot.flowbuilder.repositories.MxgraphconnectionstartRepositories;
+import com.kalsym.chatbot.flowbuilder.repositories.MxgraphconnectionendRepositories;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +36,10 @@ public class Mxgraphtrigger {
   
   public Mxgraphtrigger() {}
   
-  public static void UpdateTrigger(String flowId, String actionType, JsonObject jsonObject, MxgraphtriggerRepositories mxTriggerRepositories) {
+  public static void UpdateTrigger(String flowId, String actionType, JsonObject jsonObject, 
+          MxgraphtriggerRepositories mxTriggerRepositories, 
+          MxgraphconnectionstartRepositories mxgraphconnectionStartRepositories,
+          MxgraphconnectionendRepositories mxgraphconnectionEndRepositories) {
         if (actionType.equalsIgnoreCase("add")) {
             LOG.info("Adding new trigger into flowId:"+flowId);
             Object dataObject = BasicDBObject.parse(jsonObject.toString());
@@ -63,6 +69,19 @@ public class Mxgraphtrigger {
             if (trigger!=null) {
                 mxTriggerRepositories.delete(trigger);
                 LOG.info("trigger deleted flowId:"+flowId+" mxId:"+mxId+" id:"+trigger.id);
+                //find connection start & connection end relate to this trigger
+                List MxgraphconnectionStartList = mxgraphconnectionStartRepositories.findByUserObjectMxId(flowId, mxId);
+                for (int i=0;i<MxgraphconnectionStartList.size();i++) {
+                    Mxgraphconnectionstart connectionStart = (Mxgraphconnectionstart)MxgraphconnectionStartList.get(i);
+                    mxgraphconnectionStartRepositories.delete(connectionStart);
+                    LOG.info("connectionStart deleted flowId:"+flowId+" triggerId:"+mxId+" id:"+connectionStart.id);
+                }
+                List MxgraphconnectionEndList = mxgraphconnectionEndRepositories.findByUserObjectMxId(flowId, mxId);
+                for (int i=0;i<MxgraphconnectionEndList.size();i++) {
+                    Mxgraphconnectionend connectionEnd = (Mxgraphconnectionend)MxgraphconnectionEndList.get(i);
+                    mxgraphconnectionEndRepositories.delete(connectionEnd);
+                    LOG.info("connectionEnd deleted flowId:"+flowId+" triggerId:"+mxId+" id:"+connectionEnd.id);
+                }
             } else {
                 LOG.error("delete trigger not exist for flowId:"+flowId+" mxId:"+mxId);
             }

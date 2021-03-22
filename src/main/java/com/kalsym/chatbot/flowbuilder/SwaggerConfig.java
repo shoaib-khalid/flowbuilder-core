@@ -29,9 +29,9 @@ public class SwaggerConfig {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("product-service")
+                .title("flow-builder")
                 .description(
-                        "exposes the product endpoints")
+                        "exposes the flow-builder endpoints")
                 .termsOfServiceUrl("TBA")
                 .license("TBA")
                 .licenseUrl("")

@@ -19,9 +19,10 @@ import lombok.ToString;
 public class FlowPayload {
     
     public String title;
-    public String botId;
+    public String[] botIds;
     public String topVertexId;
     public String description;
+    public String ownerId;
     //public DBObject data;
 
 }

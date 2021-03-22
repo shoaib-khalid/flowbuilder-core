@@ -54,9 +54,10 @@ public interface MxgraphconnectionstartRepositories extends MongoRepository<Mxgr
      * @param userObjectMxId
      * @return  complete mxtrigger object
      */
-   @Query("{'flowId' : ?0, 'conditions.mxCell.@parent' : ?1}")
+   @Query("{'flowId' : ?0, 'connectionstarts.mxCell.@parent' : ?1}")
    public List<Mxgraphconnectionstart> findByUserObjectMxId(
             @Param("flowId") String flowId,
             @Param("userObjectMxId") String userObjectMxId
    );
+   
 }

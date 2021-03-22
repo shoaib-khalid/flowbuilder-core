@@ -210,7 +210,46 @@ public class VertexDecoder {
         JsonArray connectionEnd = extractJSONArray(jsondata, "ConnectionEnd");
         
         Map<String, MxObject> objectMap = new HashMap<>();
-
+        
+        Map<String, ConnectionStart> connetionStartParentMap = new HashMap<>();
+        
+        //extract Vertex Step/Option from connectionStart
+        if (connectionStart != null) {
+            LOG.info("connectionStart:" + connectionStart.toString());
+            int connectionStartSize = connectionStart.size();
+            for (int i = 0; i < connectionStartSize; i++) {
+                JsonObject cell = (JsonObject) connectionStart.get(i);
+                String id = cell.get("@id").getAsString();
+                LOG.info("connectionStart[" + i + "] -> id=" + id);
+                String parent = cell.get("mxCell").getAsJsonObject().get("@parent").getAsString();
+                ConnectionStart cs = new ConnectionStart();
+                cs.setId(id);
+                cs.setParent(parent);
+                MxObject mxObject = new MxObject(MxObjectType.CONNECTION_START, cs);
+                objectMap.put(id, mxObject);
+                
+                //put in connectionStart parent
+                connetionStartParentMap.put(parent, cs);
+            }
+        }
+        
+        //extract Vertex Step/Option from connectionEnd
+        if (connectionEnd != null) {
+            LOG.info("connectionEnd:" + connectionEnd.toString());
+            int connectionEndSize = connectionEnd.size();
+            for (int i = 0; i < connectionEndSize; i++) {
+                JsonObject cell = (JsonObject) connectionEnd.get(i);
+                String id = cell.get("@id").getAsString();
+                LOG.info("connectionEnd[" + i + "] -> id=" + id);
+                String parent = cell.get("mxCell").getAsJsonObject().get("@parent").getAsString();
+                ConnectionEnd ce = new ConnectionEnd();
+                ce.setId(id);
+                ce.setParent(parent);
+                MxObject mxObject = new MxObject(MxObjectType.CONNECTION_END, ce);
+                objectMap.put(id, mxObject);
+            }
+        }
+        
         //extract Vertex Step from edge in mxcell
         Map<String, Step> stepMap = new HashMap<>();
         if (mxcell != null) {
@@ -226,6 +265,17 @@ public class VertexDecoder {
                     String sourceTriggerId = cell.get("@source").getAsString();
                     String targetVertexId = cell.get("@target").getAsString();
                     LOG.info("Edge[" + i + "] -> sourceTriggerId=" + sourceTriggerId + " targetVertexId=" + targetVertexId);
+                    
+                    //find target in connectionEnd parent
+                    MxObject mx = objectMap.get(targetVertexId);
+                    if (mx!=null) {
+                        if (mx.getObjectType()==MxObjectType.CONNECTION_END) {
+                            ConnectionEnd ce = (ConnectionEnd) mx.getObject();
+                            targetVertexId = ce.getParent();
+                            LOG.info("Edge[" + i + "] -> sourceTriggerId=" + sourceTriggerId + " NewTargetVertexId:"+targetVertexId);
+                        }
+                    }
+                    
                     Step step = new Step();
                     step.setTargetId(targetVertexId);
                     step.setSourceId(sourceTriggerId);
@@ -423,10 +473,32 @@ public class VertexDecoder {
 
                 } else {
                     //set Vertex Option without step
-                    Vertex vertex = vertexMap.get(parent);
-                    List<Option> vertexOption = vertex.options;
-                    vertexOption.add(option);
                     LOG.info("Triggers[" + i + "] -> id=" + id + " is not an edge");
+                    
+                    //check id in connectionStart's parent
+                    ConnectionStart cs = connetionStartParentMap.get(id);
+                    if (cs!=null) {
+                        String csId = cs.getId();
+                        LOG.info("Triggers[" + i + "] -> id=" + id + " is connectionStart Parent for csId:"+csId);
+                        Step stepCs = stepMap.get(csId);
+                        if (stepCs != null) {
+                            MxObject mx = objectMap.get(stepCs.getTargetId());
+                            stepCs.setTargetType(ConvertObjectType(mx.getObjectType()));
+                            option.setStep(stepCs);
+                            stepMap.remove(id);
+
+                            //set Vertex Options with step
+                            Vertex vertex = vertexMap.get(parent);
+                            List<Option> vertexOption = vertex.options;
+                            vertexOption.add(option);
+                            LOG.info("Triggers[" + i + "] -> id=" + id + " is an edge");
+                        }
+                    } else {
+                        Vertex vertex = vertexMap.get(parent);
+                        List<Option> vertexOption = vertex.options;
+                        vertexOption.add(option);                    
+                    }
+                    
                 }
 
                 Trigger t = new Trigger();
@@ -435,7 +507,31 @@ public class VertexDecoder {
                 objectMap.put(id, mxObject);
             }
         }
-
+        
+        //extract connectionStart and put into objectMap
+        /*if (connectionStart != null) {
+            for (int i = 0; i < connectionStart.size(); i++) {
+                JsonObject cell = (JsonObject) connectionStart.get(i);
+                String id = cell.get("@id").getAsString();
+                Mxgraphconnectionstart cs = new Mxgraphconnectionstart();
+                cs.id = id;
+                MxObject mxObject = new MxObject(MxObjectType.CONNECTION_START, cs);
+                objectMap.put(id, mxObject);
+            }            
+        }
+        
+        //extract connectionEnd and put into objectMap
+        if (connectionEnd != null) {
+            for (int i = 0; i < connectionEnd.size(); i++) {
+                JsonObject cell = (JsonObject) connectionEnd.get(i);
+                String id = cell.get("@id").getAsString();
+                Mxgraphconnectionstart ce = new Mxgraphconnectionstart();
+                ce.id = id;
+                MxObject mxObject = new MxObject(MxObjectType.CONNECTION_END, ce);
+                objectMap.put(id, mxObject);
+            }
+        }*/
+        
         //set Vertex Step  using StepMap
         Iterator stepIterator = stepMap.entrySet().iterator();
         int s = 0;
@@ -461,6 +557,19 @@ public class VertexDecoder {
                 vertex.step = v;
                 LOG.info("Step[" + s + "] vertex mxId:" + vertex.id);
                 vertexMap.put(vertex.mxId, vertex);
+            } else if (mxobject.getObjectType() == MxObjectType.CONNECTION_START) {
+                ConnectionStart cs = (ConnectionStart) mxobject.getObject();
+                String vertexId = cs.getParent();
+                Vertex vertex = vertexMap.get(vertexId);
+                if (vertex!=null) {
+                    //parent is vertex
+                    v.setTargetType(VertexTargetType.VERTEX);
+                    vertex.step = v;
+                    LOG.info("Step[" + s + "] vertex id:" + vertexId);
+                    vertexMap.put(vertexId, vertex);
+                } else {
+                    //parent is trigger, set in option                    
+                }
             }
             s++;
         }

@@ -30,7 +30,7 @@ public class AppEvents {
         LOG.info("Executing Startup Task");
         
         //send login first to get token
-        AuthResult loginResult = authService.SendLoginRequest();
+        /*AuthResult loginResult = authService.SendLoginRequest();
         if (!loginResult.isSuccess) {
             LOG.info("Login Failed");
         } else {
@@ -174,6 +174,6 @@ public class AppEvents {
 
             LOG.info("Send AuthList:"+authrList.size()+" to Auth-Service");
             authService.SendRequest(authrList,token);
-        }
+        }*/
     }
 }

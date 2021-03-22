@@ -9,5 +9,7 @@ public enum MxObjectType {
     EDGE,
     ANCHOR,
     INITIAL_MESSAGE,
-    TRIGGER
+    TRIGGER,
+    CONNECTION_START,
+    CONNECTION_END
 }

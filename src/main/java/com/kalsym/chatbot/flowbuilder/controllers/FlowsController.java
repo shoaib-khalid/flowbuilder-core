@@ -39,8 +39,8 @@ public class FlowsController {
     private FlowsRepositories chatflowsRepositories;
 
     //list
-    @RequestMapping(method = RequestMethod.GET, value = {"", "/{id}/{botId}/{topVertexId}"}, name = "flow-get-by-id-botId-topVertexId")
-    @PreAuthorize("hasAnyAuthority('flow-get-by-id-botId-topVertexId', 'all')")
+    @RequestMapping(method = RequestMethod.GET, value = "/{id}", name = "flow-get-by-id")
+    @PreAuthorize("hasAnyAuthority('flow-get-by-id', 'all')")
     public ResponseEntity<ProcessResult> getFlow(
             @RequestHeader("Authorization") String auth,
             @PathVariable(required = false) String id,
@@ -62,7 +62,7 @@ public class FlowsController {
                     response.setStatus(HttpStatus.NOT_FOUND.value());
                 }
             } else if (botId != null && topVertexId != null) {
-                List<Flow> flowList = chatflowsRepositories.getByBotIdAndTopVertexId(botId, topVertexId);
+                List<Flow> flowList = chatflowsRepositories.getByBotIdsAndTopVertexId(botId, topVertexId);
                 if (!flowList.isEmpty()) {
                     response.setData(flowList);
                     response.setStatus(HttpStatus.OK.value());
@@ -70,7 +70,7 @@ public class FlowsController {
                     response.setStatus(HttpStatus.NOT_FOUND.value());
                 }
             } else if (botId != null) {
-                List<Flow> flowList = chatflowsRepositories.getByBotId(botId);
+                List<Flow> flowList = chatflowsRepositories.getByBotIds(botId);
                 if (!flowList.isEmpty()) {
                     response.setData(flowList);
                     response.setStatus(HttpStatus.OK.value());
@@ -113,14 +113,15 @@ public class FlowsController {
             LOG.info("[" + auth + "] createFlow. FlowPayload :" + flowPayLoad.toString());
             String title = flowPayLoad.getTitle();
             String description = flowPayLoad.getDescription();
-            String botId = flowPayLoad.getBotId();
+            String[] botIds = flowPayLoad.getBotIds();
             String topVertexId = flowPayLoad.getTopVertexId();
             Flow chatFlow = new Flow();
             chatFlow.title = title;
             chatFlow.description = description;
-            chatFlow.botId = botId;
+            chatFlow.botIds = botIds;
             chatFlow.topVertexId = topVertexId;
             chatFlow.status = "draft";
+            chatFlow.ownerId = flowPayLoad.getOwnerId();
             chatflowsRepositories.save(chatFlow);
 
             LOG.info("[" + auth + "] createFlow Finish");
@@ -146,23 +147,33 @@ public class FlowsController {
         try {
             // This returns a JSON or XML with the users
             LOG.info("[" + auth + "] -------------------updateFlow. Check token validity:" + auth);
-            LOG.info("[" + auth + "] updateFlow. FlowPayload :" + flowPayLoad.toString());
+            LOG.info("[" + auth + "] updateFlow. Flow Id:"+id+" FlowPayload :" + flowPayLoad.toString());
             String title = flowPayLoad.getTitle();
             String description = flowPayLoad.getDescription();
-            String botId = flowPayLoad.getBotId();
+            String[] botIds = flowPayLoad.getBotIds();
             String topVertexId = flowPayLoad.getTopVertexId();
-            Flow chatFlow = new Flow();
-            chatFlow.id = id;
-            chatFlow.title = title;
-            chatFlow.description = description;
-            chatFlow.botId = botId;
-            chatFlow.topVertexId = topVertexId;
-            chatflowsRepositories.save(chatFlow);
-
-            LOG.info("[" + auth + "] updatePublishFlow Finish");
-            return new ResponseEntity<>(response, HttpStatus.OK);
+            Optional<Flow> flowList = chatflowsRepositories.findById(id);
+            if (flowList.isPresent()) {
+                Flow chatFlow = flowList.get();
+                chatFlow.id = id;
+                chatFlow.title = title;
+                chatFlow.description = description;
+                if (botIds!=null) {
+                    chatFlow.botIds = botIds;
+                }
+                if (topVertexId!=null) {
+                    chatFlow.topVertexId = topVertexId;
+                }
+                chatflowsRepositories.save(chatFlow);
+                
+                LOG.info("[" + auth + "] updateFlow Finish");
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+            
         } catch (Exception exp) {
-            LOG.error("[" + auth + "] updatePublishFlow Execption :", exp);
+            LOG.error("[" + auth + "] updateFlow Execption :", exp);
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             return new ResponseEntity<ProcessResult>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -185,6 +196,37 @@ public class FlowsController {
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception exp) {
             LOG.error("[" + auth + "] deleteFlow Execption :", exp);
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+            return new ResponseEntity<ProcessResult>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    
+    //list
+    @RequestMapping(method = RequestMethod.GET, value = {"/getall/{ownerId}"}, name = "flow-get-by-ownerId")
+    @PreAuthorize("hasAnyAuthority('flow-get-by-ownerId', 'all')")
+    public ResponseEntity<ProcessResult> getAllFlowByOwnerId(
+            @RequestHeader("Authorization") String auth,
+            @PathVariable(required = true) String ownerId
+    ) {
+
+        ProcessResult response = new ProcessResult();
+        try {
+            // This returns a JSON or XML with the users
+            LOG.info("-------------------getAllFlowByOwnerId. Check token validity:" + auth);
+
+            List<Flow> flowList = chatflowsRepositories.getByOwnerId(ownerId);
+            if (!flowList.isEmpty()) {
+                response.setData(flowList);
+                response.setStatus(HttpStatus.OK.value());
+            } else {
+                response.setStatus(HttpStatus.NOT_FOUND.value());
+            }
+           
+            LOG.info("[" + auth + "] getAllFlowByOwnerId Finish");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception exp) {
+            LOG.error("[" + auth + "] getAllFlowByOwnerId Execption :", exp);
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
             return new ResponseEntity<ProcessResult>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }

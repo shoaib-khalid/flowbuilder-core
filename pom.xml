@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.kalsym.chatbot</groupId>
     <artifactId>flowbuilder-core</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>v.1.0-FINAL</version>
     <name>flowbuilder-core</name>
     <description>Chatbot Flow Builder Core</description>
 
