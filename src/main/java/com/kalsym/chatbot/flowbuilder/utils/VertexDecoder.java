@@ -143,8 +143,8 @@ public class VertexDecoder {
 
                         //HashMap<String, String> headers = objectMapper.readValue(erJob.getAsJsonArray("headers").toString(), HashMap.class);
                         //LOG.info("dataVariableArray[" + i + "] headers:" + erJob.getAsJsonArray("headers").toString());
-                        HashMap<String, String> headers = gson.fromJson(erJob.get("headers"), HashMap.class);
-
+                        HashMap<String, String> headers[] = gson.fromJson(erJob.get("headers"), HashMap[].class);
+                        
                         er.setHeaders(headers);
                         er.setUrl(erJob.get("url").toString());
 
@@ -403,7 +403,7 @@ public class VertexDecoder {
 
                 if (i == 0) {
                     vertex.isTopVertex = 1;
-                }
+                }                
 
                 //save vertex in VertexMap
                 LOG.info("UserObject[" + i + "] Save vertex into vertexMap:" + id);
@@ -581,6 +581,11 @@ public class VertexDecoder {
         while (hmIterator.hasNext()) {
             Map.Entry mapElement = (Map.Entry) hmIterator.next();
             Vertex v = ((Vertex) mapElement.getValue());
+            //check if vertex have Step / Options
+            if (v.options.isEmpty() && v.step==null) {
+                v.isLastVertex=1;
+                LOG.info(v.mxId+" Is LastVertex");
+            }
             allVertex[x] = v;
             x++;
         }

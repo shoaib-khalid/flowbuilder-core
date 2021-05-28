@@ -17,7 +17,7 @@ public class ExternalRequest {
 
     private String url;
     private HttpMethod httpMethod;
-    private HashMap<String, String> headers;
+    private HashMap<String, String>[] headers;
     private ExternalRequestBody body;
 
     private ExternalRequestReponse response;

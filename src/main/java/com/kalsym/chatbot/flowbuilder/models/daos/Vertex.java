@@ -44,6 +44,7 @@ public class Vertex {
   public DBObject validation;
   public String mxId;
   public int isTopVertex=0;
+  public int isLastVertex=0;
   public Handover handover;
   public List<Condition> conditions;
   

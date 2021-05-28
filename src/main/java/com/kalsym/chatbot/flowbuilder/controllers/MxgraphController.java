@@ -697,34 +697,65 @@ public class MxgraphController {
                     }
                 }
             } else {
-                LOG.info("[" + auth + "] autoSaveMx. flowId:" + flowId + " Update mxobject");
+                LOG.info("[" + auth + "] autoSaveMx. flowId:" + flowId + " Update mxobject. Action type:"+actionType);
                 JsonObject mainJsonObj = new Gson().fromJson(mxObject, JsonObject.class);
                 for (Map.Entry<String, JsonElement> entry : mainJsonObj.entrySet()) {
                     String mainObjectType = entry.getKey();
                     LOG.info("[" + auth + "] mainDynamicKey:" + mainObjectType);
                     if (mainObjectType.equalsIgnoreCase("object")) {
-                        JsonObject jsonObj = mainJsonObj.get(mainObjectType).getAsJsonObject();
-                        for (Map.Entry<String, JsonElement> subEntry : jsonObj.entrySet()) {
-                            String objectType = subEntry.getKey();
-                            LOG.info("[" + auth + "] subDynamicKey:" + objectType);
-                            if (objectType.equalsIgnoreCase("UserObject")) {
-                                JsonObject objectValue = jsonObj.get(objectType).getAsJsonObject();
-                                Mxgraphuserobject.UpdateUserObject(flowId, actionType, objectValue, mxUserObjectRepositories, mxCellRepositories, mxTriggerRepositories);
-                            } else if (objectType.equalsIgnoreCase("triggers")) {
-                                JsonObject objectValue = jsonObj.get(objectType).getAsJsonObject();
-                                Mxgraphtrigger.UpdateTrigger(flowId, actionType, objectValue, mxTriggerRepositories, mxConnectionStartRepositories, mxConnectionEndRepositories);
-                            } else if (objectType.equalsIgnoreCase("mxcell")) {
-                                JsonObject objectValue = jsonObj.get(objectType).getAsJsonObject();
-                                Mxgraphmxcell.UpdateMxcell(flowId, actionType, objectValue, mxCellRepositories);
-                            } else if (objectType.equalsIgnoreCase("conditions")) {
-                                JsonObject objectValue = jsonObj.get(objectType).getAsJsonObject();
-                                Mxgraphcondition.UpdateCondition(flowId, actionType, objectValue, mxConditionRepositories);
-                            } else if (objectType.equalsIgnoreCase("ConnectionStart")) {
-                                JsonObject objectValue = jsonObj.get(objectType).getAsJsonObject();
-                                Mxgraphconnectionstart.UpdateConnectionStart(flowId, actionType, objectValue, mxConnectionStartRepositories);
-                            } else if (objectType.equalsIgnoreCase("ConnectionEnd")) {
-                                JsonObject objectValue = jsonObj.get(objectType).getAsJsonObject();
-                                Mxgraphconnectionend.UpdateConnectionEnd(flowId, actionType, objectValue, mxConnectionEndRepositories);
+                        if (actionType.equalsIgnoreCase("DELETE")) {
+                            LOG.info("[" + auth + "] DELETE object");
+                            JsonArray arrayValue = mainJsonObj.get(mainObjectType).getAsJsonArray();
+                            for (int i = 0; i < arrayValue.size(); i++) {
+                                JsonObject jsonObj = arrayValue.get(i).getAsJsonObject();
+                                for (Map.Entry<String, JsonElement> subEntry : jsonObj.entrySet()) {
+                                    String objectType = subEntry.getKey();
+                                    LOG.info("[" + auth + "] subDynamicKey delete objectType:" + objectType);
+                                    if (objectType.equalsIgnoreCase("UserObject")) {
+                                        JsonObject objectValue = jsonObj.get(objectType).getAsJsonObject();
+                                        Mxgraphuserobject.UpdateUserObject(flowId, actionType, objectValue, mxUserObjectRepositories, mxCellRepositories, mxTriggerRepositories);
+                                    } else if (objectType.equalsIgnoreCase("triggers")) {
+                                        JsonObject objectValue = jsonObj.get(objectType).getAsJsonObject();
+                                        Mxgraphtrigger.UpdateTrigger(flowId, actionType, objectValue, mxTriggerRepositories, mxConnectionStartRepositories, mxConnectionEndRepositories);
+                                    } else if (objectType.equalsIgnoreCase("mxcell")) {
+                                        JsonObject objectValue = jsonObj.get(objectType).getAsJsonObject();
+                                        Mxgraphmxcell.UpdateMxcell(flowId, actionType, objectValue, mxCellRepositories);
+                                    } else if (objectType.equalsIgnoreCase("conditions")) {
+                                        JsonObject objectValue = jsonObj.get(objectType).getAsJsonObject();
+                                        Mxgraphcondition.UpdateCondition(flowId, actionType, objectValue, mxConditionRepositories);
+                                    } else if (objectType.equalsIgnoreCase("ConnectionStart")) {
+                                        JsonObject objectValue = jsonObj.get(objectType).getAsJsonObject();
+                                        Mxgraphconnectionstart.UpdateConnectionStart(flowId, actionType, objectValue, mxConnectionStartRepositories);
+                                    } else if (objectType.equalsIgnoreCase("ConnectionEnd")) {
+                                        JsonObject objectValue = jsonObj.get(objectType).getAsJsonObject();
+                                        Mxgraphconnectionend.UpdateConnectionEnd(flowId, actionType, objectValue, mxConnectionEndRepositories);
+                                    }
+                                }
+                            }
+                        } else {
+                            JsonObject jsonObj = mainJsonObj.get(mainObjectType).getAsJsonObject();
+                            for (Map.Entry<String, JsonElement> subEntry : jsonObj.entrySet()) {
+                                String objectType = subEntry.getKey();
+                                LOG.info("[" + auth + "] subDynamicKey:" + objectType);
+                                if (objectType.equalsIgnoreCase("UserObject")) {
+                                    JsonObject objectValue = jsonObj.get(objectType).getAsJsonObject();
+                                    Mxgraphuserobject.UpdateUserObject(flowId, actionType, objectValue, mxUserObjectRepositories, mxCellRepositories, mxTriggerRepositories);
+                                } else if (objectType.equalsIgnoreCase("triggers")) {
+                                    JsonObject objectValue = jsonObj.get(objectType).getAsJsonObject();
+                                    Mxgraphtrigger.UpdateTrigger(flowId, actionType, objectValue, mxTriggerRepositories, mxConnectionStartRepositories, mxConnectionEndRepositories);
+                                } else if (objectType.equalsIgnoreCase("mxcell")) {
+                                    JsonObject objectValue = jsonObj.get(objectType).getAsJsonObject();
+                                    Mxgraphmxcell.UpdateMxcell(flowId, actionType, objectValue, mxCellRepositories);
+                                } else if (objectType.equalsIgnoreCase("conditions")) {
+                                    JsonObject objectValue = jsonObj.get(objectType).getAsJsonObject();
+                                    Mxgraphcondition.UpdateCondition(flowId, actionType, objectValue, mxConditionRepositories);
+                                } else if (objectType.equalsIgnoreCase("ConnectionStart")) {
+                                    JsonObject objectValue = jsonObj.get(objectType).getAsJsonObject();
+                                    Mxgraphconnectionstart.UpdateConnectionStart(flowId, actionType, objectValue, mxConnectionStartRepositories);
+                                } else if (objectType.equalsIgnoreCase("ConnectionEnd")) {
+                                    JsonObject objectValue = jsonObj.get(objectType).getAsJsonObject();
+                                    Mxgraphconnectionend.UpdateConnectionEnd(flowId, actionType, objectValue, mxConnectionEndRepositories);
+                                }
                             }
                         }
                     } else if (mainObjectType.equalsIgnoreCase("data")) {
