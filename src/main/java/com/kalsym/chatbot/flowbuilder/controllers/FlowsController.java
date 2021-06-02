@@ -122,6 +122,7 @@ public class FlowsController {
             chatFlow.topVertexId = topVertexId;
             chatFlow.status = "draft";
             chatFlow.ownerId = flowPayLoad.getOwnerId();
+            chatFlow.storeId = flowPayLoad.getStoreId();
             chatflowsRepositories.save(chatFlow);
 
             LOG.info("[" + auth + "] createFlow Finish");

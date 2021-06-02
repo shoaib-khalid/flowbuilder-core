@@ -18,17 +18,19 @@ import java.util.List;
 
 public class Flow {
 
-  @Id
-  public String id;
+    @Id
+    public String id;
 
-  public String title;
-  public String[] botIds;
-  public String topVertexId;
-  public String description;
-  public String status;
-  public String ownerId;
-  //public DBObject data;
+    public String title;
+    public String[] botIds;
+    public String topVertexId;
+    public String description;
+    public String status;
+    public String ownerId;
+    public String storeId;
+    //public DBObject data;
 
-  public Flow() {}
+    public Flow() {
+    }
 
 }

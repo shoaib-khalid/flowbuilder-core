@@ -23,6 +23,7 @@ public class FlowPayload {
     public String topVertexId;
     public String description;
     public String ownerId;
+    public String storeId;
     //public DBObject data;
 
 }
