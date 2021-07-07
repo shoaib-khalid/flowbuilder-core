@@ -16,12 +16,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kalsym.chatbot.flowbuilder.ProcessResult;
+import com.kalsym.chatbot.flowbuilder.models.HttpReponse;
 import com.kalsym.chatbot.flowbuilder.mxmodel.daos.MxgraphmodelResponse;
 import com.kalsym.chatbot.flowbuilder.models.daos.Vertex;
 import com.kalsym.chatbot.flowbuilder.models.daos.Flow;
 import com.kalsym.chatbot.flowbuilder.submodels.Option;
 import com.kalsym.chatbot.flowbuilder.submodels.Step;
 import com.kalsym.chatbot.flowbuilder.mxmodel.daos.*;
+import com.kalsym.chatbot.flowbuilder.repositories.ConversationsRepositories;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +51,9 @@ import com.kalsym.chatbot.flowbuilder.utils.VertexDecoder;
 import com.kalsym.chatbot.flowbuilder.utils.VertexDecoderResult;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.client.RestTemplate;
 
 /**
  *
@@ -60,6 +64,9 @@ import org.springframework.security.access.prepost.PreAuthorize;
 public class MxgraphController {
 
     private static final Logger LOG = LoggerFactory.getLogger("Launcher");
+
+    @Autowired
+    private ConversationsRepositories conversationsRepositories;
 
     //@Autowired 
     //private MxgraphmodelRepositories mxgraphmodelRepositories;
@@ -112,6 +119,9 @@ public class MxgraphController {
 
     @Autowired
     private PublishconnectionendRepositories publishConnectionEndRepositories;
+
+    @Value("${services.flow-core.delete-flow-converstaions.url:https://api.symplified.biz/flow-core/v1/flows/{{flowId}}/conversations}")
+    String flowCoreDeleteConversationsUrl;
 
     @RequestMapping(method = RequestMethod.GET, value = "/{flow-id}", name = "mxgraph-get-by-flowId")
     @PreAuthorize("hasAnyAuthority('mxgraph-get-by-flowId', 'all')")
@@ -519,7 +529,7 @@ public class MxgraphController {
             Flow currentFlow = flow.get();
             currentFlow.topVertexId = topVertexId;
             currentFlow.status = "draft";
-          
+
             flowRepositories.save(currentFlow);
 
             LOG.info("[" + auth + "] createMx Finish");
@@ -569,11 +579,40 @@ public class MxgraphController {
 
         ProcessResult response = new ProcessResult();
         try {
+
             // This returns a JSON or XML with the users
             LOG.info("[" + auth + "] -------------------autoSaveMx. Check token validity:" + auth);
             LOG.info("[" + auth + "] autoSaveMx. flowId:" + flowId + " actionType:" + actionType + " mxObject :" + mxObject);
 
             if (actionType.equalsIgnoreCase("publish")) {
+
+                //delete all conversations related to this flow in flow core
+                RestTemplate restTemplate = new RestTemplate();
+
+                try {
+                    String url = flowCoreDeleteConversationsUrl.replace("{{flowId}}", flowId);
+                    LOG.info("[" + auth + "] autoSaveMx. all conversations deleted for flowCoreDeleteConversationsUrl: " + flowCoreDeleteConversationsUrl);
+
+                    LOG.info("[" + auth + "] autoSaveMx. all conversations deleted for url: " + url);
+
+                    restTemplate.delete(url);
+
+//                    if (res.getStatusCode() == HttpStatus.OK) {
+//                        LOG.info("[" + auth + "] autoSaveMx. all conversations deleted for flowId: " + flowId);
+//                    } else {
+//                        LOG.info("[" + auth + "] autoSaveMx. existing conversations could not be deleted res: " + res.toString());
+//
+//                        response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+//                        response.setMessage("Existing conversations could not be deleted");
+//                        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+//                    }
+                } catch (Exception e) {
+                    LOG.error("[" + auth + "] autoSaveMx. existing conversations could not be deleted res", e);
+                    response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+                    response.setMessage("Existing conversations could not be deleted");
+                    return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+
                 //remove current mxgraph & vertex for current flow-id
                 vertexRepositories.deleteVertexByFlowId(flowId);
                 //this part should be in publish, when user complete editing
@@ -631,7 +670,7 @@ public class MxgraphController {
                                 //set option value = targetId
                                 //option.setValue(newTargetId);
                             }
-                        }                        
+                        }
                     }
                     //store vertex in db
                     vertexRepositories.save(vertex);
@@ -652,35 +691,35 @@ public class MxgraphController {
                 //copy object to publish collection
                 PublishMxObject(flowId);
                 LOG.info("[" + auth + "] autoSaveMx. flowId:" + flowId + " Mx Object copied to publish");
-                
+
                 //update botIds
                 JsonObject mainJsonObj = new Gson().fromJson(mxObject, JsonObject.class);
-                LOG.info("[" + auth + "] botIds:"+mainJsonObj.toString());
-                
+                LOG.info("[" + auth + "] botIds:" + mainJsonObj.toString());
+
                 JsonArray botIds = new JsonArray();
-                if (mainJsonObj.get("botIds")!=null) {
+                if (mainJsonObj.get("botIds") != null) {
                     botIds = mainJsonObj.get("botIds").getAsJsonArray();
                 }
-                
-                if (botIds.size()>0) {
+
+                if (botIds.size() > 0) {
                     String[] botIdArray = new String[botIds.size()];
-                    for (int i=0;i<botIds.size();i++) {
-                        LOG.info("[" + auth + "]  botIds:"+botIds.get(i).toString());
+                    for (int i = 0; i < botIds.size(); i++) {
+                        LOG.info("[" + auth + "]  botIds:" + botIds.get(i).toString());
                         botIdArray[i] = botIds.get(i).getAsString();
                         //remove botId in other flow
                         List<Flow> foundFlowList = flowRepositories.getByBotIds(botIdArray[i]);
-                        LOG.info("[" + auth + "] Found flow with botId:"+botIdArray[i]+" : "+foundFlowList.size());
-                        for (int x=0;x<foundFlowList.size();x++) {
+                        LOG.info("[" + auth + "] Found flow with botId:" + botIdArray[i] + " : " + foundFlowList.size());
+                        for (int x = 0; x < foundFlowList.size(); x++) {
                             Flow foundFlow = foundFlowList.get(x);
-                            String[] newBotIds = new String[foundFlow.botIds.length-1];
-                            int f=0;
-                            for (int y=0;y<foundFlow.botIds.length;y++) {
+                            String[] newBotIds = new String[foundFlow.botIds.length - 1];
+                            int f = 0;
+                            for (int y = 0; y < foundFlow.botIds.length; y++) {
                                 if (!foundFlow.botIds[y].equals(botIdArray[i])) {
                                     newBotIds[f] = foundFlow.botIds[y];
-                                    f++;        
+                                    f++;
                                 }
                             }
-                            LOG.info("[" + auth + "] foundFlow:"+foundFlow.id+" newBotIds:"+newBotIds.toString());
+                            LOG.info("[" + auth + "] foundFlow:" + foundFlow.id + " newBotIds:" + newBotIds.toString());
                             foundFlow.botIds = newBotIds;
                             flowRepositories.save(foundFlow);
                         }
@@ -697,7 +736,7 @@ public class MxgraphController {
                     }
                 }
             } else {
-                LOG.info("[" + auth + "] autoSaveMx. flowId:" + flowId + " Update mxobject. Action type:"+actionType);
+                LOG.info("[" + auth + "] autoSaveMx. flowId:" + flowId + " Update mxobject. Action type:" + actionType);
                 JsonObject mainJsonObj = new Gson().fromJson(mxObject, JsonObject.class);
                 for (Map.Entry<String, JsonElement> entry : mainJsonObj.entrySet()) {
                     String mainObjectType = entry.getKey();
