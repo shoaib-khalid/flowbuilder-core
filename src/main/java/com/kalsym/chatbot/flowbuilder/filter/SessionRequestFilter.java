@@ -1,5 +1,6 @@
 package com.kalsym.chatbot.flowbuilder.filter;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kalsym.chatbot.flowbuilder.VersionHolder;
 import com.kalsym.chatbot.flowbuilder.security.model.Auth;
@@ -82,6 +83,8 @@ public class SessionRequestFilter extends OncePerRequestFilter {
 
             if (authResponse.getStatusCode() == HttpStatus.ACCEPTED) {
                 ObjectMapper mapper = new ObjectMapper();
+                mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                
                 Logger.application.warn(Logger.pattern, VersionHolder.VERSION, logprefix, "data: " + authResponse.getBody().getData(), "");
 
                 auth = mapper.convertValue(authResponse.getBody().getData(), Auth.class);
