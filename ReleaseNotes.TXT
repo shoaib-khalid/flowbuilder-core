@@ -1,3 +1,11 @@
+Version 3.0.1-BETA
+----------------------------
+Date : 11-Oct-2021
+Developer : Taufik
+
+Handle unrecognize parameter in user-service response
+
+
 Version v.1.0-FINAL
 ----------------------------
 Date : 22-March-2021
